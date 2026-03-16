@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ProfileFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textViewName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="name"
+            android:gravity="center"
+            android:layout_margin="10sp"
+            />
+
+        <TextView
+            android:id="@+id/textViewPhone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="89999999999"
+            android:layout_margin="10sp"/>
+
+        <TextView
+            android:id="@+id/textViewRole"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="роль"
+            android:layout_margin="10sp"/>
+
+        <TextView
+            android:id="@+id/textViewInf"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="информация"
+            android:layout_margin="10sp"/>
+
+        <Button
+            android:id="@+id/buttonEdit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="edit"
+            android:layout_margin="10sp"/>
+
+        <Button
+            android:id="@+id/buttonLogOut"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Log out"
+            android:layout_margin="10sp"
+            />
+
+
+    </LinearLayout>
+</FrameLayout>
