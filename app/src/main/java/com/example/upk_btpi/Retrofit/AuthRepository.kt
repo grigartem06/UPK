@@ -1,6 +1,7 @@
 package com.example.upk_btpi.Retrofit
 
 import com.example.upk_btpi.Models.AuthResponse
+import com.example.upk_btpi.Models.LoginDto
 import com.example.upk_btpi.Models.RegistrationDto
 import retrofit2.Response
 import java.io.IOException
@@ -15,7 +16,7 @@ class AuthRepository {
             val request = RegistrationDto(fullName, phoneNumber, password)
 
             println("📤 ОТПРАВКА ЗАПРОСА:")
-            println("   URL: ${RetrofitClient::class.java.getDeclaredField("BASE_URL").get(null)}api/Auth/register")
+            //println("   URL: ${RetrofitClient::class.java.getDeclaredField("BASE_URL").get(null)}api/Auth/register")
             println("   Данные: fullName=$fullName, phoneNumber=$phoneNumber, password=***")
 
             val response = RetrofitClient.apiService.register(request)
@@ -54,7 +55,7 @@ class AuthRepository {
             println("❌ ОШИБКА СЕТИ:")
             println("   ${e.message}")
             e.printStackTrace()
-            Result.failure(Exception("Нет соединения с сервером. Проверьте:\n1. Запущен ли сервер на порту 7001\n2. Правильный ли URL (http://10.0.2.2:7001)"))
+            Result.failure(Exception(e.message))
         } catch (e: Exception) {
             println("❌ НЕИЗВЕСТНАЯ ОШИБКА:")
             println("   ${e.message}")
@@ -62,5 +63,35 @@ class AuthRepository {
             Result.failure(Exception("Ошибка: ${e.message ?: "Неизвестная ошибка"}"))
         }
     }
+
+    suspend fun  login(phoneNumber: String, password: String): Result<AuthResponse> {
+        return  try {
+            val request = LoginDto(phoneNumber, password)
+            val response = RetrofitClient.apiService.login(request)
+            handleResponse(response)
+        } catch (e: IOException) {
+            Result.failure(Exception("Нет соединения с сервером"))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+
+    private  fun  handleResponse(response: Response<AuthResponse>): Result<AuthResponse> {
+        return if (response.isSuccessful && response.body() != null) {
+            val body = response.body()!!
+            Result.success(body)
+        } else {
+            val errorBody = try {
+                response.errorBody()?.string()
+            }catch (e: Exception) {
+                "Не удалось прочитать ошибку"
+            }
+            Result.failure(Exception("Ошибка ${response.code()}: $errorBody"))
+        }
+    }
+
+
+
 
 }

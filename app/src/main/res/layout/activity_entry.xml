@@ -7,87 +7,43 @@
     android:layout_height="match_parent"
     tools:context=".Entry">
 
-
-
-
-
     <LinearLayout
         android:layout_width="409dp"
         android:layout_height="729dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Вход"
-            android:gravity="center"
-            android:textSize="20sp"/>
-
         <EditText
-            android:id="@+id/editTextPhone2"
+            android:id="@+id/editTextText2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10sp"
             android:ems="10"
-            android:hint="номер телефона"
-            android:inputType="phone"
-            android:minHeight="48dp" />
+            android:inputType="text"
+            android:minHeight="48dp"
+            android:text="79507531606" />
 
         <EditText
             android:id="@+id/editTextTextPassword3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10sp"
             android:ems="10"
-            android:hint="пароль"
             android:inputType="textPassword"
-            android:minHeight="48dp" />
-
-        <Switch
-            android:id="@+id/switch1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="10sp"
             android:minHeight="48dp"
-            android:text="Запомнить меня" />
+            android:text="passwordUser1" />
 
         <Button
-            android:id="@+id/button3"
+            android:id="@+id/buttonInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Войти"
-            android:layout_margin="10sp"/>
-
-        <TextView
-            android:id="@+id/textView2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="нет аккаунта?"
-            android:layout_margin="10sp"/>
+            android:text="войти" />
 
         <Button
-            android:id="@+id/button4"
+            android:id="@+id/buttonGoToRegistrtion"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="зарегистроваться"
-            android:layout_margin="10sp"/>
-
+            android:text="зарегистроваться" />
     </LinearLayout>
-
-
-
-
-
-
-
-
-
-
-
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>

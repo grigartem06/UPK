@@ -9,14 +9,20 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
     //private const val BASE_URL ="https://localhost:7001/"
-    private const val BASE_URL = "http://10.0.2.2:7001/"
+    //private const val BASE_URL = "https://10.0.2.2:7001/"
+    private const val BASE_URL = "http://btpit-ypk-api.somee.com/"
+
+
+
+
     val apiService: ApiService by lazy {
         // Логгер для просмотра всех запросов и ответов
         val loggingInterceptor = HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY // Показывает тело запроса/ответа
+            level = HttpLoggingInterceptor.Level.BODY
         }
 
-        val client = OkHttpClient.Builder()
+        val client = UnsafeOkHttpClient.getUnsafeOkHttpClient()
+            .newBuilder()
             .addInterceptor(loggingInterceptor)
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)

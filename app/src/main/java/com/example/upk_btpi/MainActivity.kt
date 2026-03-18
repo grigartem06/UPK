@@ -41,8 +41,8 @@ class MainActivity : AppCompatActivity() {
 
         // Кнопка "Войти"
         binding.button2.setOnClickListener {
-            //startActivity(Intent(this, Entry::class.java))
-            //finish()
+            startActivity(Intent(this, Entry::class.java))
+            finish()
         }
     }
 
@@ -88,7 +88,7 @@ class MainActivity : AppCompatActivity() {
             result.onSuccess { response ->
                 Toast.makeText(
                     this@MainActivity,
-                    "✅ ${response.message ?: "Регистрация успешна!"}",
+                    "✅ ${response.name ?: "Регистрация успешна!"}",
                     Toast.LENGTH_LONG
                 ).show()
 
@@ -102,10 +102,17 @@ class MainActivity : AppCompatActivity() {
 //                finish()
             }
 
-            val onFailure = result.onFailure { error ->
+            result.onFailure { error ->
+                val errorMessage = error.message ?: "Неизвестная ошибка"
+
+                // Показываем ошибку в поле ФИО
+                binding.editTextText.error = errorMessage
+                binding.editTextText.requestFocus()
+
+                // Дополнительно можно показать Toast (по желанию)
                 Toast.makeText(
                     this@MainActivity,
-                    "❌ Ошибка: ${error.message}",
+                    "❌ $errorMessage",
                     Toast.LENGTH_LONG
                 ).show()
 

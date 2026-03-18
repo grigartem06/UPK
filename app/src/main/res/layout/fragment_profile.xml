@@ -17,7 +17,7 @@
             android:id="@+id/textViewName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="name"
+            android:text=""
             android:gravity="center"
             android:layout_margin="10sp"
             />
@@ -26,21 +26,21 @@
             android:id="@+id/textViewPhone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="89999999999"
+            android:text="number"
             android:layout_margin="10sp"/>
 
         <TextView
             android:id="@+id/textViewRole"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="роль"
+            android:text="role"
             android:layout_margin="10sp"/>
 
         <TextView
             android:id="@+id/textViewInf"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="информация"
+            android:text="inf"
             android:layout_margin="10sp"/>
 
         <Button
