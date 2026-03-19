@@ -40,7 +40,20 @@ object JwtDecoder {
         return decode(token)[claimName]?.toString()
     }
 
+    // ✅ Специальный метод для mobilephone (длинное имя)
+    fun getPhoneFromToken(token: String): String? {
+        return getClaim(token, "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/mobilephone")
+    }
 
+    fun isExpired(token: String): Boolean {
+        return try {
+            val exp = decode(token)["exp"] as? Long ?: return true
+            val now = System.currentTimeMillis() / 1000
+            exp < now
+        } catch (e: Exception) {
+            true
+        }
+    }
 
 
 }

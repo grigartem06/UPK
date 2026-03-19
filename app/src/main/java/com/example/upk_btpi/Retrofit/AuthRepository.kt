@@ -3,39 +3,24 @@ package com.example.upk_btpi.Retrofit
 import com.example.upk_btpi.Models.AuthResponse
 import com.example.upk_btpi.Models.LoginDto
 import com.example.upk_btpi.Models.RegistrationDto
+import com.example.upk_btpi.Models.UserResponse
 import retrofit2.Response
 import java.io.IOException
 
 class AuthRepository {
-    suspend fun register(
-        fullName: String,
-        phoneNumber: String,
-        password: String
-    ): Result<AuthResponse> {
+    suspend fun register(fullName: String, phoneNumber: String, password: String): Result<AuthResponse> {
         return try {
             val request = RegistrationDto(fullName, phoneNumber, password)
-
-            println("📤 ОТПРАВКА ЗАПРОСА:")
-            //println("   URL: ${RetrofitClient::class.java.getDeclaredField("BASE_URL").get(null)}api/Auth/register")
-            println("   Данные: fullName=$fullName, phoneNumber=$phoneNumber, password=***")
-
             val response = RetrofitClient.apiService.register(request)
-
-            println("📥 ПОЛУЧЕН ОТВЕТ:")
-            println("   Код: ${response.code()}")
-            println("   Успех: ${response.isSuccessful}")
-            println("   Message: ${response.message()}")
 
             if (response.isSuccessful) {
                 val body = response.body()
-                println("   Body: $body")
 
                 if (body != null) {
                     Result.success(body)
                 } else {
-                    // Сервер вернул 200 OK, но без тела
-                    println("⚠️ Сервер вернул пустой ответ с кодом 200")
-                    Result.success(AuthResponse(null, "Регистрация успешна", null))
+                    Result.success(AuthResponse(null, "Регистрация успешна",
+                        null))
                 }
             } else {
                 // Сервер вернул ошибку
@@ -63,20 +48,26 @@ class AuthRepository {
             Result.failure(Exception("Ошибка: ${e.message ?: "Неизвестная ошибка"}"))
         }
     }
-
-    suspend fun  login(phoneNumber: String, password: String): Result<AuthResponse> {
-        return  try {
+    suspend fun login(phoneNumber: String, password: String): Result<AuthResponse> {
+        return try {
             val request = LoginDto(phoneNumber, password)
             val response = RetrofitClient.apiService.login(request)
-            handleResponse(response)
+
+            println("📤 ВХОД: phoneNumber=$phoneNumber")
+            println("📥 ОТВЕТ: код=${response.code()}, токен=${response.body()?.token?.take(20)}...")
+
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                val error = response.errorBody()?.string() ?: "Неизвестная ошибка"
+                Result.failure(Exception("Ошибка ${response.code()}: $error"))
+            }
         } catch (e: IOException) {
             Result.failure(Exception("Нет соединения с сервером"))
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
-
-
     private  fun  handleResponse(response: Response<AuthResponse>): Result<AuthResponse> {
         return if (response.isSuccessful && response.body() != null) {
             val body = response.body()!!
@@ -90,6 +81,22 @@ class AuthRepository {
             Result.failure(Exception("Ошибка ${response.code()}: $errorBody"))
         }
     }
+
+    suspend fun getUserByID(userId: String): Result<UserResponse> {
+        return try {
+            val response = RetrofitClient.apiService.getUserByID(userId)
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                val error = response.errorBody()?.string() ?: "Неизвестная ошибка"
+                Result.failure(Exception("Ошибка ${response.code()}: $error"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+
 
 
 

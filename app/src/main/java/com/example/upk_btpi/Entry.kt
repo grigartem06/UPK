@@ -33,15 +33,12 @@ class Entry : AppCompatActivity() {
         }
 
         binding.buttonInput.setOnClickListener {
-            val phoneNumber = binding.editTextText2.text.toString()
+            val phoneNumber = binding.editTextText2.text.toString().trim()
             val password = binding.editTextTextPassword3.text.toString()
-
             if(!phoneNumber.isEmpty() && !password.isEmpty()) {
                 LogIn(phoneNumber, password)
             }
-
         }
-
     }
 
     //api запрос
@@ -51,62 +48,52 @@ class Entry : AppCompatActivity() {
 
         lifecycleScope.launch {
             val result = authRepository.login(phoneNumber, password)
-
             result.onSuccess { response ->
-                val token = response.token ?:""
+                val token = response.token ?: ""
 
-                if(token.isNotEmpty()){
-                    val claims = JwtDecoder.decode(token)
-
-                    // Извлекаем нужные поля
-                    val userId = claims["nameid"]?.toString()?.toIntOrNull()
-                    val userRole = claims["role"]?.toString()
-                    val userName = claims["name"]?.toString() ?: claims["fullName"]?.toString()
-                    val exp = claims["exp"]?.toString()?.toLongOrNull()
-
-                    // Сохраняем дополнительные данные в SharedPreferences
-                    val prefs = getSharedPreferences("auth_prefs", MODE_PRIVATE)
-                    prefs.edit().apply {
-                        if (userId != null) putInt("user_id", userId)
-                        if (userRole != null) putString("user_role", userRole)
-                        if (userName != null) putString("user_name", userName)
-                        if (exp != null) putLong("token_exp", exp)
-                        apply()
-                    }
-                }
+                saveUserData(token, phoneNumber, response)
 
 
-
-                 // ✅ Переход на главную страницу
+                 //  Переход на главную страницу
                 val intent = Intent(this@Entry, MainPage::class.java)
                 startActivity(intent)
                 finish()
             }
-
                 result.onFailure { error ->
                     val errorMessage = error.message ?: "Неизвестная ошибка"
-
                     // Показываем ошибку в поле телефона
                     binding.editTextText2.error = errorMessage
                     binding.editTextText2.requestFocus()
-
-                    Toast.makeText(this@Entry, "❌ $errorMessage", Toast.LENGTH_LONG).show()
-
+                    Toast.makeText(this@Entry, "❌ $errorMessage",
+                        Toast.LENGTH_LONG).show()
                     binding.buttonInput.isEnabled = true
                     binding.buttonInput.text = "Войти"
                 }
-
-
         }
-
 
     }
 
-    private  fun saveUserData(response: AuthResponse,phoneNumber: String) {
+    private  fun saveUserData(token: String, phoneNumber: String, response: AuthResponse) {
         val prefs = getSharedPreferences("auth_prefs", MODE_PRIVATE)
-        //prefs.edit().putString("auth_token",token).apply()
-        prefs.edit().apply(){
-         putString("auth_token", response.token.toString())
+
+
+        val claims = if(token.isNullOrEmpty()) JwtDecoder.decode(token) else emptyMap()
+
+        // Сохраняем токен
+        prefs.edit().putString("auth_token", token).apply()
+        println("💾 Токен сохранён: ${token.take(20)}...")
+
+        // Декодируем токен и сохраняем данные
+        if (token.isNotEmpty()) {
+            val claims = JwtDecoder.decode(token)
+            prefs.edit().apply {
+                putString("user_id", claims["nameid"]?.toString() ?: "")
+                putString("user_name", claims["unique_name"]?.toString() ?: response.fullName ?: "Не указано")
+                putString("user_phone", phoneNumber)
+                putString("user_role", claims["role"]?.toString() ?: "Пользователь")
+                apply()
+            }
+            println("💾 Данные из токена сохранены")
         }
     }
 
