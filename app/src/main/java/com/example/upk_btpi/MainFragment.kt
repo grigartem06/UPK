@@ -1,6 +1,7 @@
 package com.example.upk_btpi
 
 import android.content.Context.MODE_PRIVATE
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -97,11 +98,10 @@ class MainFragment : Fragment() {
             putString("selected_product_id", product.id)
             apply()
         }
-        val detailFragment = ProductDetailFragment()
-        parentFragmentManager.beginTransaction()
-            .replace(R.id.nav_host_fragment,detailFragment)
-            .addToBackStack(null)
-            .commit()
+
+        //переход на другой activity
+        val intent = Intent(requireContext(), ProductDetailActivity::class.java)
+        startActivity(intent)
 
     }
 

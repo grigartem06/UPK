@@ -36,13 +36,13 @@ class Entry : AppCompatActivity() {
             val phoneNumber = binding.editTextText2.text.toString().trim()
             val password = binding.editTextTextPassword3.text.toString()
             if(!phoneNumber.isEmpty() && !password.isEmpty()) {
-                LogIn(phoneNumber, password)
+                LogIn(phoneNumber, password, binding.switch1.isChecked)
             }
         }
     }
 
     //api запрос
-    private fun  LogIn(phoneNumber: String ,password: String) {
+    private fun  LogIn(phoneNumber: String ,password: String, rememberMe: Boolean) {
         binding.buttonInput.isEnabled = false
         binding.buttonInput.text = "вход в аккаунт"
 
@@ -50,14 +50,15 @@ class Entry : AppCompatActivity() {
             val result = authRepository.login(phoneNumber, password)
             result.onSuccess { response ->
                 val token = response.token ?: ""
+                if (token.isNotEmpty()) {
+                    saveUserData(token, phoneNumber, password, response, rememberMe)
 
-                saveUserData(token, phoneNumber, response)
 
-
-                 //  Переход на главную страницу
-                val intent = Intent(this@Entry, MainPage::class.java)
-                startActivity(intent)
-                finish()
+                    //  Переход на главную страницу
+                    val intent = Intent(this@Entry, MainPage::class.java)
+                    startActivity(intent)
+                    finish()
+                } else { Toast.makeText(this@Entry, "⚠️ Токен не получен", Toast.LENGTH_SHORT).show() }
             }
                 result.onFailure { error ->
                     val errorMessage = error.message ?: "Неизвестная ошибка"
@@ -73,23 +74,49 @@ class Entry : AppCompatActivity() {
 
     }
 
-    private  fun saveUserData(token: String, phoneNumber: String, response: AuthResponse) {
+    private  fun saveUserData(token: String, phoneNumber: String,password: String, response: AuthResponse, rememberMe: Boolean) {
         val prefs = getSharedPreferences("auth_prefs", MODE_PRIVATE)
-        val claims = if(token.isNullOrEmpty()) JwtDecoder.decode(token) else emptyMap()
-        // Сохраняем токен
-        prefs.edit().putString("auth_token", token).apply()
-        // Декодируем токен и сохраняем данные
-        if (token.isNotEmpty()) {
-            val claims = JwtDecoder.decode(token)
-            prefs.edit().apply {
-                putString("user_id", claims["nameid"]?.toString() ?: "")
-                putString("user_name", claims["unique_name"]?.toString() ?: response.fullName ?: "Не указано")
-                putString("user_phone", phoneNumber)
-                putString("user_role", claims["role"]?.toString() ?: "Пользователь")
-                apply()
+        val claims = JwtDecoder.decode(token)
+
+        //prefs.edit().putString("auth_token", token).apply()
+        prefs.edit().apply {
+            putString("auth_token", token)
+            putString("user_id", claims["nameid"]?.toString() ?: "")
+            putString("user_name", claims["unique_name"]?.toString() ?: response.fullName ?: "Не указано")
+            putString("user_phone", phoneNumber)
+            putString("user_role", claims["role"]?.toString() ?: "Пользователь")
+
+            // Пароль ТОЛЬКО если "Запомнить меня"
+            if (rememberMe) {
+                putString("user_password", password)
+                putBoolean("save", true)
+            } else {
+                remove("user_password")  // ✅ Удаляем старый пароль
+                putBoolean("save", false)
             }
-            println("💾 Данные из токена сохранены")
+            apply()
         }
+
+
+        // Декодируем токен и сохраняем данные
+//        if (token.isNotEmpty()) {
+//
+//            prefs.edit().apply {
+//                putString("user_id", claims["nameid"]?.toString() ?: "")
+//                putString("user_name", claims["unique_name"]?.toString() ?: response.fullName ?: "Не указано")
+//                putString("user_phone", phoneNumber)
+//                putString("user_role", claims["role"]?.toString() ?: "Пользователь")
+//                putString("user_password", binding.editTextTextPassword3.text.toString().trim())
+//
+//                if(binding.switch1.isChecked == true)
+//                {
+//                    prefs.edit().apply{putBoolean("save", true)}
+//                }
+//                else{   prefs.edit().apply{putBoolean("save", false)    }}
+//
+//                apply()
+//            }
+//        }
     }
 
 }

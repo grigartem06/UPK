@@ -34,6 +34,13 @@
             android:minHeight="48dp"
             android:text="passwordUser1" />
 
+        <Switch
+            android:id="@+id/switch1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:text="сохранить вход" />
+
         <Button
             android:id="@+id/buttonInput"
             android:layout_width="match_parent"

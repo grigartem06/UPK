@@ -109,10 +109,6 @@ class ProfileFragment : Fragment() {
                      RetrofitClient.apiService.updateUser(request)
 
                  }
-
-
-
-
              }
              else // включаем редактирование
              {

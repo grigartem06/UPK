@@ -16,14 +16,26 @@
         android:theme="@style/Theme.UPK_BTPI"
         android:usesCleartextTraffic="true">
         <activity
-            android:name=".AboutProductActivity"
+            android:name=".LoadActivity"
+            android:exported="true" >
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+        </activity>
+
+
+
+        <activity
+            android:name=".ProductDetailActivity"
             android:exported="false" />
         <activity
             android:name=".Entry"
             android:exported="false" />
         <activity
             android:name=".MainPage"
-            android:exported="false"></activity>
+            android:exported="false" />
         <activity
             android:name=".SMS"
             android:exported="false" /> <!-- <activity -->
@@ -31,12 +43,12 @@
         <!-- android:exported="false" /> -->
         <activity
             android:name=".MainActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:exported="false">
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
         </activity>
     </application>
 

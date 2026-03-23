@@ -1,24 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ProductDetailFragment">
+    tools:context=".ProductDetailActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <!-- Кнопка "Назад" -->
         <Button
             android:id="@+id/buttonBack"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="← Назад"
             android:layout_marginBottom="16dp"
-            style="@style/Widget.MaterialComponents.Button.TextButton"/>
+            android:text="← Назад" />
 
 
         <!-- Изображение продукта -->
@@ -26,105 +32,100 @@
             android:id="@+id/imageViewProduct"
             android:layout_width="match_parent"
             android:layout_height="250dp"
-            android:scaleType="centerCrop"
-            android:visibility="gone"
             android:layout_marginBottom="16dp"
-            android:background="@android:color/darker_gray"/>
+            android:background="@android:color/darker_gray"
+            android:scaleType="centerCrop"
+            android:visibility="gone" />
 
         <!-- Название -->
-        <TextView
+        <EditText
             android:id="@+id/textViewName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
             android:text="Название продукта"
             android:textSize="24sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="8dp"/>
+            android:textStyle="bold" />
 
         <!-- Тип (Товар/Услуга) -->
-        <TextView
+        <EditText
             android:id="@+id/textViewType"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:minHeight="48dp"
             android:text="📦 Товар"
-            android:textSize="16sp"
             android:textColor="@android:color/holo_blue_dark"
-            android:layout_marginBottom="8dp"/>
+            android:textSize="16sp" />
 
         <!-- Цена -->
-        <TextView
+        <EditText
             android:id="@+id/textViewCost"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
             android:text="0 ₽"
-            android:textSize="28sp"
-            android:textStyle="bold"
             android:textColor="@android:color/holo_green_dark"
-            android:layout_marginBottom="16dp"/>
+            android:textSize="28sp"
+            android:textStyle="bold" />
 
         <!-- Рейтинг -->
         <TextView
             android:id="@+id/textViewRating"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
             android:text="⭐ 0 / 5"
-            android:textSize="18sp"
-            android:layout_marginBottom="16dp"/>
+            android:textSize="18sp" />
 
         <!-- Описание -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:minHeight="48dp"
             android:text="Описание:"
-            android:textStyle="bold"
             android:textSize="16sp"
-            android:layout_marginBottom="8dp"/>
+            android:textStyle="bold" />
 
-        <TextView
+        <EditText
             android:id="@+id/textViewInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Нет описания"
-            android:textSize="16sp"
+            android:layout_marginBottom="16dp"
             android:lineSpacingExtra="4dp"
-            android:layout_marginBottom="16dp"/>
+            android:minHeight="48dp"
+            android:text="Нет описания"
+            android:textSize="16sp" />
 
         <!-- Адрес -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
             android:text="Адрес:"
-            android:textStyle="bold"
             android:textSize="16sp"
-            android:layout_marginBottom="8dp"/>
+            android:textStyle="bold" />
 
-        <TextView
+        <EditText
             android:id="@+id/textViewAddress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:minHeight="48dp"
             android:text="Адрес не указан"
-            android:textSize="16sp"
-            android:layout_marginBottom="16dp"/>
+            android:textSize="16sp" />
 
-        <!-- Статус -->
-        <TextView
-            android:id="@+id/textViewStatus"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Статус: Неизвестно"
-            android:textSize="14sp"
-            android:textColor="@android:color/darker_gray"
-            android:layout_marginBottom="24dp"/>
+
 
         <!-- Кнопка "Заказать" -->
         <Button
             android:id="@+id/buttonOrder"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="🛒 Заказать"
             android:minHeight="56dp"
-            android:textSize="18sp"/>
+            android:text="🛒 Заказать"
+            android:textSize="18sp" />
 
     </LinearLayout>
-
-</FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
