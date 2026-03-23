@@ -1,8 +1,8 @@
-package com.example.upk_btpi.Models
+package com.example.upk_btpi.Models.User
 
 import com.google.gson.annotations.SerializedName
 
-data class postUser(
+data class CreateUserDto(
     @SerializedName("fullname")
     val fullname: String,
     @SerializedName("password")

@@ -2,15 +2,21 @@ package com.example.upk_btpi
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import com.example.upk_btpi.Models.User.UpdateUserDto
+import com.example.upk_btpi.Models.User.UserDto
 import com.example.upk_btpi.Retrofit.RetrofitClient
 import com.example.upk_btpi.databinding.FragmentProfileBinding
 import kotlinx.coroutines.launch
+import okhttp3.Response
+import kotlin.io.path.Path
 import kotlin.uuid.ExperimentalUuidApi
 
 // TODO: Rename parameter arguments, choose names that match
@@ -25,6 +31,15 @@ class ProfileFragment : Fragment() {
     // TODO: Rename and change types of parameters
 
     private  var _binding: FragmentProfileBinding? = null
+    var isEditMode = false
+    var oldUser = UserDto(
+        id = "id",
+        fullname = null,
+        hashPassword = null,
+        phoneNumber = null,
+        userInfo = null,
+        isActive = true
+    )
     private  val binding get() = _binding!!
 
     override fun onCreateView(
@@ -40,24 +55,107 @@ class ProfileFragment : Fragment() {
         //загрузка данные об аккаунте
         loadUserProfile()
 
-        //Кнопка "редактировать"
+        // Кнопка "Выход"
+        binding.buttonLogOut.setOnClickListener {
+            if(!isEditMode)
+            {
+                //"выйти из аккаунта
+                val prefs = requireContext().getSharedPreferences("auth_prefs", 0)
+                prefs.edit().clear().apply()
 
-    // Кнопка "Выход"
-    binding.buttonLogOut.setOnClickListener {
-        val prefs = requireContext().getSharedPreferences("auth_prefs", 0)
-        prefs.edit().clear().apply()
+                val intent = Intent(requireContext(), MainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+                requireActivity().finish()
 
-        val intent = Intent(requireContext(), MainActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        startActivity(intent)
-        requireActivity().finish()
+            }
+            else{ //"отмена"
+                findNavController().apply { popBackStack()
+                navigate(R.id.profileFragment)}
+            }
+
+        }
+
+         //кнопка редактирования
+         binding.buttonEdit.setOnClickListener {
+             if(isEditMode ) //отключаем редактирование
+             {
+                 isEditMode = false
+                 binding.buttonEdit.text = "изменить"
+                 binding.buttonLogOut.text = "выйти"
+                 val prefs = requireContext().getSharedPreferences("auth_prefs", 0)
+                 val roleName = prefs.getString("user_role", null)
+
+
+                 lifecycleScope.launch {
+                     val rolesResponse = RetrofitClient.apiService.getAllRoles()
+                     if(!rolesResponse.isSuccessful || rolesResponse.body() == null) {
+                     }
+                     val roles = rolesResponse.body()!!.roles
+                     val role = roles.find {
+                         it.roleName?.equals(roleName, ignoreCase = true) == true
+                     }
+                     val roleid = role?.id
+
+                     //сохранение изменений
+                     val request = UpdateUserDto(
+                         id = oldUser.id,
+                         fullname = binding.editTextTextName.text.toString(),
+                         userInfo = binding.editTextTextInf.text.toString(),
+                         phoneNumber = binding.editTextTextPhone.text.toString(),
+                         roleId = roleid.toString(),
+                         isActive = true
+                     )
+                     RetrofitClient.apiService.updateUser(request)
+
+                 }
+
+
+
+
+             }
+             else // включаем редактирование
+             {
+                 isEditMode = true
+                 binding.buttonEdit.text = "сохранить изменения"
+                 binding.buttonLogOut.text = "отмена"
+
+             }
+             changeOfAccess(isEditMode)
+
+
+
+         }
+    }
+
+    fun changeOfAccess(isEditMode: Boolean){
+        //разрешено редактирование на момент нажатия
+        binding.editTextTextName.apply {
+            isFocusable = isEditMode
+            isFocusableInTouchMode = isEditMode
+            isClickable = isEditMode
+            isCursorVisible = isEditMode
+        }
+        binding.editTextTextPhone.apply {
+            isFocusable = isEditMode
+            isFocusableInTouchMode = isEditMode
+            isClickable = isEditMode
+            isCursorVisible = isEditMode
+        }
+        binding.editTextTextInf.apply {
+            isFocusable = isEditMode
+            isFocusableInTouchMode = isEditMode
+            isClickable = isEditMode
+            isCursorVisible = isEditMode
         }
     }
+
 
     @OptIn(ExperimentalUuidApi::class)
     fun loadUserProfile() {
         val prefs = requireContext().getSharedPreferences("auth_prefs", 0)
         val nowUserID = prefs.getString("user_id", null)
+        val  role = prefs.getString("user_role", null)
 
 
         val token = prefs.getString("auth_token", null)
@@ -65,7 +163,7 @@ class ProfileFragment : Fragment() {
         Toast.makeText(requireContext(), nowUserID.toString(), Toast.LENGTH_LONG).show()
 
         if (nowUserID.isNullOrEmpty()) {
-            Toast.makeText(requireContext(),"⚠️ user_id не найден в SharedPreferences", Toast.LENGTH_LONG)
+            Toast.makeText(requireContext(),"⚠️user_id не найден в SharedPreferences", Toast.LENGTH_LONG)
             return
         }
 
@@ -77,10 +175,17 @@ class ProfileFragment : Fragment() {
                     val user = response.body()!!
 
                     // Обновляем UI
-                    binding.textViewName.text = user.fullName ?: "Не указано"
-                    binding.textViewPhone.text = user.phoneNumber ?: "Не указано"
-                    binding.textViewRole.text = user.role?.roleName ?: "Пользователь"
-                    binding.textViewInf.text = user.userInfo ?: "Нет информации"
+                    binding.editTextTextName.setText(user.fullname)
+                    binding.editTextTextPhone.setText(user.phoneNumber)
+                    binding.editTextTextRole.setText(role.toString())
+
+                    if (user.userInfo != null) {
+                        binding.editTextTextInf.setText(user.userInfo)
+                    }
+
+                    oldUser = user
+
+
 
                 } else {
                     val error = response.errorBody()?.string() ?: "Неизвестная ошибка"

@@ -1,9 +1,12 @@
 plugins {
     alias(libs.plugins.android.application)
 
+
     kotlin("plugin.parcelize")
 
+
     id("kotlin-parcelize")
+
 }
 
 android {
@@ -75,6 +78,15 @@ dependencies {
 
     // Coroutines (обычно уже есть в проекте)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
+
+    // ✅ CardView
+    implementation("androidx.cardview:cardview:1.0.0")
+// ✅ RecyclerView
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
+// ✅ Material Design
+    implementation("com.google.android.material:material:1.11.0")
+
+
 
 
 }

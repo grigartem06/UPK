@@ -1,4 +1,4 @@
-package com.example.upk_btpi.Models
+package com.example.upk_btpi.Models.Feedback
 
 import com.google.gson.annotations.SerializedName
 
@@ -9,9 +9,12 @@ data class FeedbackDto(
     @SerializedName("comment")
     val comment: String? = null,
 
-    @SerializedName("raiting")
-    val rating: Int = 0,
-
     @SerializedName("imagePath")
-    val imagePath: String? = null
+    val imagePath: String? = null,
+
+    @SerializedName("userId")
+    val userId: String? = null,
+
+    @SerializedName("raiting")
+    val rating: Double? = null
 )

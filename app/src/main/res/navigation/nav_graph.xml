@@ -14,15 +14,36 @@
         android:id="@+id/mainFragment"
         android:name="com.example.upk_btpi.MainFragment"
         android:label="fragment_main"
-        tools:layout="@layout/fragment_main" />
+        tools:layout="@layout/fragment_main">
+
+        <!-- ✅ ДОБАВЬТЕ ЭТО: переход к деталям продукта -->
+        <action
+            android:id="@+id/action_mainFragment_to_productDetailFragment"
+            app:destination="@id/productDetailFragment"/>
+    </fragment>
+
+
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.example.upk_btpi.ProfileFragment"
         android:label="fragment_profile"
         tools:layout="@layout/fragment_profile" />
+
     <fragment
         android:id="@+id/ordersFragment"
         android:name="com.example.upk_btpi.OrdersFragment"
         android:label="fragment_orders"
         tools:layout="@layout/fragment_orders" />
+
+    <fragment
+        android:id="@+id/productDetailFragment"
+        android:name="com.example.upk_btpi.ProductDetailFragment"
+        android:label="fragment_product_detail"
+        tools:layout="@layout/fragment_product_detail">
+
+        <!-- ✅ Аргумент для передачи product_id -->
+        <argument
+            android:name="product_id"
+            app:argType="string"/>
+    </fragment>
 </navigation>

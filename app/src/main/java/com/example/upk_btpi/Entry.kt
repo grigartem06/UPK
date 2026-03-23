@@ -8,7 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
-import com.example.upk_btpi.Models.AuthResponse
+import com.example.upk_btpi.Models.Auth.AuthResponse
 import com.example.upk_btpi.Retrofit.AuthRepository
 import com.example.upk_btpi.Utils.JwtDecoder
 import com.example.upk_btpi.databinding.ActivityEntryBinding
@@ -75,14 +75,9 @@ class Entry : AppCompatActivity() {
 
     private  fun saveUserData(token: String, phoneNumber: String, response: AuthResponse) {
         val prefs = getSharedPreferences("auth_prefs", MODE_PRIVATE)
-
-
         val claims = if(token.isNullOrEmpty()) JwtDecoder.decode(token) else emptyMap()
-
         // Сохраняем токен
         prefs.edit().putString("auth_token", token).apply()
-        println("💾 Токен сохранён: ${token.take(20)}...")
-
         // Декодируем токен и сохраняем данные
         if (token.isNotEmpty()) {
             val claims = JwtDecoder.decode(token)

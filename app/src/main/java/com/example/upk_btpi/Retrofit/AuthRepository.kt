@@ -1,9 +1,12 @@
 package com.example.upk_btpi.Retrofit
 
-import com.example.upk_btpi.Models.AuthResponse
+import com.example.upk_btpi.Models.Auth.AuthResponse
 import com.example.upk_btpi.Models.LoginDto
+import com.example.upk_btpi.Models.Product.ProductDto
+import com.example.upk_btpi.Models.Product.ProductsResponse
 import com.example.upk_btpi.Models.RegistrationDto
-import com.example.upk_btpi.Models.UserResponse
+import com.example.upk_btpi.Models.User.UserDto
+import com.example.upk_btpi.Models.User.UserResponse
 import retrofit2.Response
 import java.io.IOException
 
@@ -82,19 +85,62 @@ class AuthRepository {
         }
     }
 
-    suspend fun getUserByID(userId: String): Result<UserResponse> {
-        return try {
-            val response = RetrofitClient.apiService.getUserByID(userId)
-            if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!)
-            } else {
-                val error = response.errorBody()?.string() ?: "Неизвестная ошибка"
+//    suspend fun getUserByID(userId: String): Result<UserDto> {
+//        return try {
+//            val response = RetrofitClient.apiService.getUserByID(userId)
+//            if (response.isSuccessful && response.body() != null) {
+//                Result.success(response.body()!!)
+//            } else {
+//                val error = response.errorBody()?.string() ?: "Неизвестная ошибка"
+//                Result.failure(Exception("Ошибка ${response.code()}: $error"))
+//            }
+//        } catch (e: Exception) {
+//            Result.failure(e)
+//        }
+//    }
+
+
+    suspend fun getAllProducts(): Result<ProductsResponse>
+    {
+        return  try {
+            val response = RetrofitClient.apiService.getAllProducts()
+            if(response.isSuccessful && response.body()!= null) {
+                val products = response.body()!!
+                Result.success(products)
+            }
+            else {
+                val error = response.errorBody()?.string() ?: "неизвестная ошибка"
                 Result.failure(Exception("Ошибка ${response.code()}: $error"))
             }
-        } catch (e: Exception) {
+        }
+        catch (e: Exception) {
             Result.failure(e)
         }
     }
+
+    suspend fun getProductById(productId: String): Result<ProductDto> {
+        return try {
+            println("📤 ЗАПРОС: GET /api/Product/$productId")
+
+            val response = RetrofitClient.apiService.getProductById(productId)
+
+            if (response.isSuccessful && response.body() != null) {
+                val product = response.body()!!
+                println("✅ Продукт получен: ${product.productName}")
+                Result.success(product)
+            } else {
+                val error = response.errorBody()?.string() ?: "Неизвестная ошибка"
+                println("❌ ОШИБКА: ${response.code()} - $error")
+                Result.failure(Exception("Ошибка ${response.code()}: $error"))
+            }
+        } catch (e: Exception) {
+            println("❌ ИСКЛЮЧЕНИЕ: ${e.message}")
+            Result.failure(e)
+        }
+    }
+
+
+
 
 
 

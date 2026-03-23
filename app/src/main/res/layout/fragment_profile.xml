@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ProfileFragment">
+    tools:context=".ProfileFragment"
+    android:padding="25sp">
 
     <!-- TODO: Update blank fragment layout -->
 
@@ -14,35 +15,60 @@
         android:orientation="vertical"
         android:layout_margin="10sp">
 
-        <TextView
-            android:id="@+id/textViewName"
+
+        <EditText
+            android:id="@+id/editTextTextName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="text"
+            android:minHeight="48dp"
             android:text=""
-            android:gravity="center"
-            android:layout_margin="10sp"
+            android:focusable="false"
+            android:clickable="false"
+            android:cursorVisible="false"
             />
 
-        <TextView
-            android:id="@+id/textViewPhone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="number"
-            android:layout_margin="10sp"/>
 
-        <TextView
-            android:id="@+id/textViewRole"
+        <EditText
+            android:id="@+id/editTextTextPhone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="role"
-            android:layout_margin="10sp"/>
+            android:ems="10"
+            android:inputType="text"
+            android:minHeight="48dp"
+            android:text=""
+            android:focusable="false"
+            android:clickable="false"
+            android:cursorVisible="false"
+            />
 
-        <TextView
-            android:id="@+id/textViewInf"
+        <EditText
+            android:id="@+id/editTextTextRole"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="inf"
-            android:layout_margin="10sp"/>
+            android:ems="10"
+            android:inputType="text"
+            android:minHeight="48dp"
+            android:text=""
+            android:focusable="false"
+            android:clickable="false"
+            android:cursorVisible="false"
+            />
+
+        <EditText
+            android:id="@+id/editTextTextInf"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="text"
+            android:minHeight="48dp"
+            android:text="информация о вас"
+            android:focusable="false"
+            android:clickable="false"
+            android:cursorVisible="false"
+
+            />
 
         <Button
             android:id="@+id/buttonEdit"

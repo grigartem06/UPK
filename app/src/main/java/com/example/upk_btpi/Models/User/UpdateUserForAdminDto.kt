@@ -1,4 +1,4 @@
-package com.example.upk_btpi.Models
+package com.example.upk_btpi.Models.User
 
 import com.google.gson.annotations.SerializedName
 

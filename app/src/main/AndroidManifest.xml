@@ -16,13 +16,14 @@
         android:theme="@style/Theme.UPK_BTPI"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".AboutProductActivity"
+            android:exported="false" />
+        <activity
             android:name=".Entry"
             android:exported="false" />
         <activity
             android:name=".MainPage"
-            android:exported="false">
-
-        </activity>
+            android:exported="false"></activity>
         <activity
             android:name=".SMS"
             android:exported="false" /> <!-- <activity -->
