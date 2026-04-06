@@ -13,8 +13,8 @@
 
     <item
         android:id="@+id/add"
-        android:icon="@drawable/plus"
-        android:title="+" />
+        android:icon="@drawable/img"
+        android:title="УПК" />
 
     <item
         android:id="@+id/profileFragment"

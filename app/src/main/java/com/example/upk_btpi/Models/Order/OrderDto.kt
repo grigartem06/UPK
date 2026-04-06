@@ -6,6 +6,12 @@ data class OrderDto(
     @SerializedName("id")
     val id: String,
 
+    @SerializedName("executorId")
+    val executorId: String? = null,
+
+    @SerializedName("customerId")
+    val customerId: String? = null,
+
     @SerializedName("date")
     val date: String? = null,
 

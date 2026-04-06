@@ -3,12 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".OrdersFragment">
+    tools:context=".OrdersFragment"
+    android:padding="15sp">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/ListOfOrders"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="заказы" />
-
+        android:layout_height="match_parent" />
 </FrameLayout>

@@ -71,14 +71,14 @@ class LoadActivity : AppCompatActivity() {
         }
     }
 
-    // ✅ Переход на главную
+    // Переход на главную
     private fun goToMainPage() {
         val intent = Intent(this@LoadActivity, MainPage::class.java)
         startActivity(intent)
         finish()
     }
 
-    // ✅ Переход на экран входа
+    // Переход на экран входа
     private fun goToEntry() {
         val intent = Intent(this@LoadActivity, Entry::class.java)
         startActivity(intent)
@@ -90,16 +90,13 @@ class LoadActivity : AppCompatActivity() {
         val prefs = getSharedPreferences("auth_prefs", MODE_PRIVATE)
         val claims = JwtDecoder.decode(token)
 
-        // ✅ Отладка — выводим все claims
-        println("📦 JWT Claims:")
-        claims.forEach { (key, value) ->
-            println("   $key = $value")
-        }
+        // Отладка — выводим все claims
+        claims.forEach { (key, value) -> println("$key = $value") }
 
         prefs.edit().apply {
             putString("auth_token", token)
 
-            // ✅ Пробуем несколько вариантов имени claim
+            // Пробуем несколько вариантов имени claim
             putString("user_id",
                 claims["nameid"]?.toString()
                     ?: claims["id"]?.toString()

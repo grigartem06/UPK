@@ -70,6 +70,15 @@ interface ApiService {
 
 
     //Order
+    @GET("api/Order/manager")
+    suspend fun getOrdersForManager() : Response<OrdersResponse>
+    @GET("api/Order/manager/History")
+    suspend fun getOrdersForManagerHistory() : Response<OrdersResponse>
+    @GET("api/Order/user")
+    suspend fun getOrdersForUser() : Response<OrdersResponse>
+    @GET("api/Order/user/History")
+    suspend fun getOrdersForUserHistory() : Response<OrdersResponse>
+
     @GET("api/Order/All")
     suspend fun getAllOrders() : Response<OrdersResponse>
 

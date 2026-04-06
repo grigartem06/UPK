@@ -1,5 +1,6 @@
 package com.example.upk_btpi
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -31,7 +32,15 @@ class ProductDetailActivity : AppCompatActivity() {
         }
         loadProductDetails(productId)
 
+        binding.buttonOrder.setOnClickListener {
+            val intent = Intent(this@ProductDetailActivity, NewOrderActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
 
+        binding.buttonBack.setOnClickListener {
+            finish()
+        }
     }
 
     private fun loadProductDetails(productId: String) {
@@ -49,8 +58,8 @@ class ProductDetailActivity : AppCompatActivity() {
         binding.textViewRating.setText(product.raiting.toString())
         binding.textViewInfo.setText(product.productInfo.toString())
         binding.textViewAddress.setText(product.adress)
-
-
     }
+
+
 
 }

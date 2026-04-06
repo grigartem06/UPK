@@ -8,10 +8,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.compose.runtime.saveable.autoSaver
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.upk_btpi.Adapters.UserAdapter
 import com.example.upk_btpi.Models.User.UpdateUserDto
 import com.example.upk_btpi.Models.User.UserDto
+import com.example.upk_btpi.Retrofit.AuthRepository
 import com.example.upk_btpi.Retrofit.RetrofitClient
 import com.example.upk_btpi.databinding.FragmentProfileBinding
 import kotlinx.coroutines.launch
@@ -19,18 +23,9 @@ import okhttp3.Response
 import kotlin.io.path.Path
 import kotlin.uuid.ExperimentalUuidApi
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-
-/**
- * A simple [Fragment] subclass.
- * Use the [ProfileFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class ProfileFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-
     private  var _binding: FragmentProfileBinding? = null
+    private val authRepository = AuthRepository()
     var isEditMode = false
     var oldUser = UserDto(
         id = "id",
@@ -41,6 +36,11 @@ class ProfileFragment : Fragment() {
         isActive = true
     )
     private  val binding get() = _binding!!
+    var nowUserID: String ?= null
+    var role: String ?= null
+    var token: String ?= null
+
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -52,8 +52,19 @@ class ProfileFragment : Fragment() {
 
      override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        //загрузка данные об аккаунте
+
+         val prefs = requireContext().getSharedPreferences("auth_prefs", 0)
+         nowUserID = prefs.getString("user_id", null)
+         role = prefs.getString("user_role", null)
+         token = prefs.getString("auth_token", null)
+
+         //загрузка данные об аккаунте
         loadUserProfile()
+
+         //загрузка списка пользователей
+         if(role =="Admin") {
+
+         }
 
         // Кнопка "Выход"
         binding.buttonLogOut.setOnClickListener {
@@ -118,9 +129,6 @@ class ProfileFragment : Fragment() {
 
              }
              changeOfAccess(isEditMode)
-
-
-
          }
     }
 
@@ -146,58 +154,76 @@ class ProfileFragment : Fragment() {
         }
     }
 
-
     @OptIn(ExperimentalUuidApi::class)
     fun loadUserProfile() {
-        val prefs = requireContext().getSharedPreferences("auth_prefs", 0)
-        val nowUserID = prefs.getString("user_id", null)
-        val  role = prefs.getString("user_role", null)
-
-
-        val token = prefs.getString("auth_token", null)
-        Toast.makeText(requireContext(), token.toString(), Toast.LENGTH_LONG).show()
-        Toast.makeText(requireContext(), nowUserID.toString(), Toast.LENGTH_LONG).show()
-
         if (nowUserID.isNullOrEmpty()) {
             Toast.makeText(requireContext(),"⚠️user_id не найден в SharedPreferences", Toast.LENGTH_LONG)
             return
         }
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                val response = RetrofitClient.apiService.getUserByID(nowUserID)
-
-                if (response.isSuccessful && response.body() != null) {
-                    val user = response.body()!!
-
-                    // Обновляем UI
-                    binding.editTextTextName.setText(user.fullname)
-                    binding.editTextTextPhone.setText(user.phoneNumber)
-                    binding.editTextTextRole.setText(role.toString())
-
-                    if (user.userInfo != null) {
-                        binding.editTextTextInf.setText(user.userInfo)
-                    }
-
-                    oldUser = user
-
-
-
-                } else {
-                    val error = response.errorBody()?.string() ?: "Неизвестная ошибка"
-                    Toast.makeText(requireContext(), "Ошибка: ${response.code()}", Toast.LENGTH_SHORT).show()
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                Toast.makeText(requireContext(), "Ошибка: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
-        }
+        else { loadUserInf() }
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
+
+     fun loadUserInf() {
+         viewLifecycleOwner.lifecycleScope.launch {
+             try {
+                 val response = RetrofitClient.apiService.getUserByID(nowUserID.toString())
+                 if (response.isSuccessful && response.body() != null) {
+                     val user = response.body()!!
+                     // Обновляем UI
+                     binding.editTextTextName.setText(user.fullname)
+                     binding.editTextTextPhone.setText(user.phoneNumber)
+                     binding.editTextTextRole.setText(role.toString())
+
+                     if (user.userInfo != null) { binding.editTextTextInf.setText(user.userInfo) }
+                     oldUser = user
+
+                 } else {
+                     val error = response.errorBody()?.string() ?: "Неизвестная ошибка"
+                     Toast.makeText(requireContext(), "Ошибка: ${error}", Toast.LENGTH_SHORT).show()
+                 }
+             } catch (e: Exception) {
+                 e.printStackTrace()
+                 Toast.makeText(requireContext(), "Ошибка: ${e.message}", Toast.LENGTH_SHORT).show()
+             }
+
+             if(role == "Admin") {
+                loadAllUser()
+             }
+             else { binding.recyclerViewUsers.visibility = View.GONE}
+         }
+    }
+
+    fun loadAllUser(){
+        viewLifecycleOwner.lifecycleScope.launch {
+            val result =authRepository.getALLUsers()
+            result.onSuccess {response ->
+                val users= response.users
+                if(users.isEmpty()) { Toast.makeText(requireContext(),"пользователей нет", Toast.LENGTH_SHORT).show() }
+                else
+                {
+                    binding.recyclerViewUsers.apply {
+                        visibility = View.VISIBLE
+                        layoutManager = LinearLayoutManager(requireContext())
+                        setHasFixedSize(true)
+                        adapter = UserAdapter(users) {user ->
+                            Toast.makeText(requireContext(), "Выбран: ${user.fullname}", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            }
+            result.onFailure {
+                super.onDestroyView()
+                _binding= null
+            }
+        }
+    }
+
 
 
 }
