@@ -1,7 +1,9 @@
 package com.example.upk_btpi.Retrofit
 
 import androidx.compose.material3.PrimaryScrollableTabRow
+import androidx.compose.ui.geometry.Rect
 import com.example.upk_btpi.Models.Auth.AuthResponse
+import com.example.upk_btpi.Models.Feedback.FeedbackResponse
 import com.example.upk_btpi.Models.LoginDto
 import com.example.upk_btpi.Models.Order.CreateOrderDto
 import com.example.upk_btpi.Models.Order.OrdersResponse
@@ -11,6 +13,7 @@ import com.example.upk_btpi.Models.Product.ProductsResponse
 import com.example.upk_btpi.Models.RegistrationDto
 import com.example.upk_btpi.Models.User.UserDto
 import com.example.upk_btpi.Models.User.UserResponse
+import com.example.upk_btpi.Models.Ypk.YpkResponse
 import retrofit2.Response
 import java.io.IOException
 
@@ -209,10 +212,32 @@ class AuthRepository {
         catch (e: Exception) { Result.failure(e) }
     }
 
+    suspend fun getAllUpks(): Result<YpkResponse> {
+        return try {
+            val response = RetrofitClient.apiService.getAllYpk()
+            if(response.isSuccessful && response.body()!=null) {
+                val upks = response.body()!!
+                Result.success(upks)
+            }
+            else {
+                val error = response.errorBody()?.string() ?: "неизвестная ошибка"
+                Result.failure(Exception("Ошибка ${response.code()}: $error"))
+            }
+        } catch (e: Exception) { Result.failure(e) }
+    }
 
-
-
-
-
+    suspend fun getAllFeedbacks() : Result<FeedbackResponse> {
+        return try {
+            val response = RetrofitClient.apiService.getAllFeedback()
+            if(response.isSuccessful && response.body() != null) {
+                val feedbacks = response.body()!!
+                Result.success(feedbacks)
+            }
+            else{
+                val error = response.errorBody()?.string() ?: "неизвестная ошибка"
+                Result.failure(Exception("Ошибка ${response.code()}: $error"))
+            }
+        } catch (e: Exception) { Result.failure(e) }
+    }
 
 }

@@ -12,9 +12,12 @@ data class FeedbackDto(
     @SerializedName("imagePath")
     val imagePath: String? = null,
 
+    @SerializedName("imageUrl")
+    val imageUrl: String? = null,
+
     @SerializedName("userId")
     val userId: String? = null,
 
-    @SerializedName("raiting")
-    val rating: Double? = null
+//    @SerializedName("raiting")
+//    val rating: Double? = null
 )
