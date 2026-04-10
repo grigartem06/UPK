@@ -19,7 +19,7 @@ class ProductViewHolder(private val binding: ItemProductBinding)
         binding.textViewName.text = product.productName ?: "Без названия"
         binding.textViewCost.text = "${product.productCost} ₽"
         binding.textViewInfo.text = product.productInfo ?: "Нет описания"
-        binding.textViewRaitind.text = "⭐ ${product.raiting}"
+        binding.textViewRaitind.text = "⭐ ${product.ypkId}"
 
         // Загрузка изображения
         if (!product.photoPath.isNullOrEmpty()) {

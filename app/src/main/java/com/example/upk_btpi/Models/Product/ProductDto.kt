@@ -6,6 +6,9 @@ data class ProductDto(
     @SerializedName("id")
     val id: String,
 
+    @SerializedName("ypkId")
+    val ypkId: String,
+
     @SerializedName("productName")
     val productName: String,
 
@@ -27,6 +30,7 @@ data class ProductDto(
     @SerializedName("adress")
     val adress: String?= null,
 
-    @SerializedName("raiting")
-    val raiting: Double
+    @SerializedName("statusProductId")
+    val statusProductId: String?=null
+
 )

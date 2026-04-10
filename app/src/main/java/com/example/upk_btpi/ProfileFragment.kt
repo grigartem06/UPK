@@ -97,7 +97,6 @@ class ProfileFragment : Fragment() {
                  val prefs = requireContext().getSharedPreferences("auth_prefs", 0)
                  val roleName = prefs.getString("user_role", null)
 
-
                  lifecycleScope.launch {
                      val rolesResponse = RetrofitClient.apiService.getAllRoles()
                      if(!rolesResponse.isSuccessful || rolesResponse.body() == null) {

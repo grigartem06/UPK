@@ -78,7 +78,6 @@ class Entry : AppCompatActivity() {
         val prefs = getSharedPreferences("auth_prefs", MODE_PRIVATE)
         val claims = JwtDecoder.decode(token)
 
-        //prefs.edit().putString("auth_token", token).apply()
         prefs.edit().apply {
             putString("auth_token", token)
             putString("user_id", claims["nameid"]?.toString() ?: "")

@@ -11,6 +11,7 @@ import com.example.upk_btpi.Models.Product.CreateProductDto
 import com.example.upk_btpi.Models.Product.ProductDto
 import com.example.upk_btpi.Models.Product.ProductsResponse
 import com.example.upk_btpi.Models.RegistrationDto
+import com.example.upk_btpi.Models.StatusProduct.StatusProductResponse
 import com.example.upk_btpi.Models.User.UserDto
 import com.example.upk_btpi.Models.User.UserResponse
 import com.example.upk_btpi.Models.Ypk.YpkResponse
@@ -239,5 +240,27 @@ class AuthRepository {
             }
         } catch (e: Exception) { Result.failure(e) }
     }
+
+
+
+    suspend fun getAllStatusProducts(): Result<StatusProductResponse> {
+        return try {
+            println("📤 ЗАПРОС: GET /api/StatusProduct/All")
+
+            val response = RetrofitClient.apiService.getAllStatusProduct()
+
+            if (response.isSuccessful && response.body() != null) {
+                val statusProducts = response.body()!!
+                println("✅ Получено статусов: ${statusProducts.statusProducts.size}")
+                Result.success(statusProducts)
+            } else {
+                val error = response.errorBody()?.string() ?: "Неизвестная ошибка"
+                Result.failure(Exception("Ошибка ${response.code()}: $error"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
 
 }

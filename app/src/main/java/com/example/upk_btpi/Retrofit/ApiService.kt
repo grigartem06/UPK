@@ -27,11 +27,14 @@ import com.example.upk_btpi.Models.Ypk.CreateYpkDto
 import com.example.upk_btpi.Models.Ypk.UpdateYpkDto
 import com.example.upk_btpi.Models.Ypk.YpkResponse
 import com.example.upk_btpi.Models.Ypk.YpksDto
+import okhttp3.MultipartBody
 import okhttp3.Request
 import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
+import retrofit2.http.Field
+import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.POST
@@ -110,6 +113,22 @@ interface ApiService {
     @POST("api/Product/{id}")
     suspend fun addNewProduct(@Body request: CreateProductDto) : Response<Unit>
 
+//    @PUT("api/Product")
+//    suspend fun updateProduct(@Body request: ProductDto)
+
+    @FormUrlEncoded
+    @PUT("api/Product")
+    suspend fun updateProduct(
+        @Field("Id") id: String,
+        @Field("ProductName") productName: String,
+        @Field("ProductInfo") productInfo: String,
+        @Field("ProductCost") productCost: Double,
+        @Field("IsProduct") isProduct: Boolean,
+        @Field("Adress") adress: String,
+        @Field("YpkId") ypkId: String,
+        @Field("StatusProductId") statusProductId: String
+    ): Response<Unit>
+
 
     //Role
     @GET("api/Role/All")
@@ -136,7 +155,7 @@ interface ApiService {
     @POST("api/User")
     suspend fun createUser(@Body request: CreateUserDto) : Response<Unit>
     @PUT("api/User")
-    suspend fun  updateUser(@Body request: UpdateUserDto)
+    suspend fun  updateUser(@Body request: UpdateUserDto) : Response<Unit>
     @PUT("/api/user/admin")
     suspend fun updateUserForAdmin(@Body request: UpdateUserForAdminDto)
 
