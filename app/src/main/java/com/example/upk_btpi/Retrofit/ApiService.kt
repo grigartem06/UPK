@@ -27,8 +27,8 @@ import com.example.upk_btpi.Models.Ypk.CreateYpkDto
 import com.example.upk_btpi.Models.Ypk.UpdateYpkDto
 import com.example.upk_btpi.Models.Ypk.YpkResponse
 import com.example.upk_btpi.Models.Ypk.YpksDto
+import kotlinx.serialization.BinaryFormat
 import okhttp3.MultipartBody
-import okhttp3.Request
 import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Body
@@ -36,6 +36,7 @@ import retrofit2.http.DELETE
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
@@ -116,17 +117,18 @@ interface ApiService {
 //    @PUT("api/Product")
 //    suspend fun updateProduct(@Body request: ProductDto)
 
-    @FormUrlEncoded
+    @Multipart
     @PUT("api/Product")
     suspend fun updateProduct(
-        @Field("Id") id: String,
-        @Field("ProductName") productName: String,
-        @Field("ProductInfo") productInfo: String,
-        @Field("ProductCost") productCost: Double,
-        @Field("IsProduct") isProduct: Boolean,
-        @Field("Adress") adress: String,
-        @Field("YpkId") ypkId: String,
-        @Field("StatusProductId") statusProductId: String
+        @Part("Id") id: RequestBody,                    // ✅ RequestBody
+        @Part("ProductName") productName: RequestBody,  // ✅ RequestBody
+        @Part("ProductInfo") productInfo: RequestBody,  // ✅ RequestBody
+        @Part("ProductCost") productCost: RequestBody,  // ✅ RequestBody
+        @Part("IsProduct") isProduct: RequestBody,      // ✅ RequestBody
+        @Part("Adress") adress: RequestBody,            // ✅ RequestBody
+        @Part photo: MultipartBody.Part?,               // ✅ MultipartBody.Part
+        @Part("YpkId") ypkId: RequestBody,              // ✅ RequestBody
+        @Part("StatusProductId") statusProductId: RequestBody  // ✅ RequestBody
     ): Response<Unit>
 
 

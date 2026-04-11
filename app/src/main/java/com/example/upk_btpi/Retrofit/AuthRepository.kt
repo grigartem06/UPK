@@ -126,6 +126,26 @@ class AuthRepository {
         }
     }
 
+
+    suspend fun getAllEdetingProducts(): Result<ProductsResponse>
+    {
+        return  try {
+            val response = RetrofitClient.apiService.getAllEdetingProducts()
+            if(response.isSuccessful && response.body()!= null) {
+                val products = response.body()!!
+                Result.success(products)
+            }
+            else {
+                val error = response.errorBody()?.string() ?: "неизвестная ошибка"
+                Result.failure(Exception("Ошибка ${response.code()}: $error"))
+            }
+        }
+        catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+
     suspend fun getProductById(productId: String): Result<ProductDto> {
         return try {
             val response = RetrofitClient.apiService.getProductById(productId)

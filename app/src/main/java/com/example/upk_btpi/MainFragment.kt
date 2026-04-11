@@ -54,6 +54,7 @@ class MainFragment : Fragment() {
             val query = binding.editTextText3.text.toString()
             Toast.makeText(requireContext(), "Поиск: $query", Toast.LENGTH_SHORT).show()
         }
+        binding.checkBox.setOnClickListener {loadProducts()  }
     }
 
     private enum class FilterType { ALL, PRODUCTS, SERVICES }
@@ -79,16 +80,44 @@ class MainFragment : Fragment() {
     }
 
     private fun  loadProducts(){
-        viewLifecycleOwner.lifecycleScope.launch {
-            val result = authRepository.getAllProducts()
+        val authPrefs =requireContext().getSharedPreferences("auth_prefs", MODE_PRIVATE)
+        var userRole = authPrefs.getString("user_role", null)
 
-            result.onSuccess { response ->
-                allProducts = response.products
-                filterProducts(FilterType.ALL)
+        viewLifecycleOwner.lifecycleScope.launch {
+            if(userRole == "DefaultUser") {
+                val result = authRepository.getAllProducts()
+                result.onSuccess { response ->
+                    allProducts = response.products
+                    filterProducts(FilterType.ALL)
+                }
+                result.onFailure { error->
+                    Toast.makeText(requireContext(), error.message, Toast.LENGTH_LONG).show()
+                }
             }
-            result.onFailure { error->
-                Toast.makeText(requireContext(), error.message, Toast.LENGTH_LONG).show()
+            else {
+                if (binding.checkBox.isChecked) {
+                    val result = authRepository.getAllEdetingProducts()
+                    result.onSuccess { response ->
+                        allProducts = response.products
+                        filterProducts(FilterType.ALL)
+                    }
+                    result.onFailure { error->
+                        Toast.makeText(requireContext(), error.message, Toast.LENGTH_LONG).show()
+                    }
+                }
+                else {
+                    val result = authRepository.getAllProducts()
+                    result.onSuccess { response ->
+                        allProducts = response.products
+                        filterProducts(FilterType.ALL)
+                    }
+                    result.onFailure { error->
+                        Toast.makeText(requireContext(), error.message, Toast.LENGTH_LONG).show()
+                    }
+                }
+
             }
+
         }
     }
 
