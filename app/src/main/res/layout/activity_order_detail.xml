@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".order_detail_Activity">
+
+    <LinearLayout
+        android:layout_width="409dp"
+        android:layout_height="729dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/textView9"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Информация о заказе" />
+
+
+        <TextView
+            android:id="@+id/textViewId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="id" />
+
+
+        <TextView
+            android:id="@+id/textViewExecutorId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="executorId" />
+
+        <TextView
+            android:id="@+id/textViewCustomerId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="customerId" />
+
+        <TextView
+            android:id="@+id/textViewDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="date" />
+
+        <TextView
+            android:id="@+id/textViewStatusName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="statusName" />
+
+        <Spinner
+            android:id="@+id/spinnerStatusName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5sp"
+            android:minHeight="48dp"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/textViewCustomersComment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="customersComment" />
+
+        <EditText
+            android:id="@+id/editTextCustomersComment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="text"
+            android:minHeight="48dp"
+            android:text="Name"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/textViewUserComment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="userComment" />
+
+        <EditText
+            android:id="@+id/editTextUserComment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="text"
+            android:minHeight="48dp"
+            android:text="Name"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/textViewProductName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="productName" />
+
+        <Button
+            android:id="@+id/editButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5sp"
+            android:text="edit"
+            android:visibility="gone"/>
+
+        <Button
+            android:id="@+id/ButtonSave"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5sp"
+            android:text="save"
+            android:visibility="gone"/>
+
+        <Button
+            android:id="@+id/backBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5sp"
+            android:text="back"/>
+
+
+
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,5 +1,6 @@
 package com.example.upk_btpi
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -31,7 +32,6 @@ class OrdersFragment : Fragment() {
         return binding.root
     }
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val authPrefs = requireContext().getSharedPreferences("auth_prefs", 0)
@@ -45,7 +45,6 @@ class OrdersFragment : Fragment() {
             return
         }
         loadOrders(role)
-
     }
 
     fun loadOrders(role:String) {
@@ -71,12 +70,24 @@ class OrdersFragment : Fragment() {
     }
 
     private fun onOrderClick(order: OrderDto)  {
+        val prefs = requireContext().getSharedPreferences("order_prefs", 0)
+        prefs.edit().apply(){
+            putString("selected_orderId", order.id)
+            apply()
+        }
 
+        //переход на страницу
+        val intent  = Intent(requireContext(), order_detail_Activity::class.java)
+        startActivity(intent)
     }
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
+
+
+
+
 
 
 

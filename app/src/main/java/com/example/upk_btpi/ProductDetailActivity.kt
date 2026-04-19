@@ -39,6 +39,7 @@ class ProductDetailActivity : AppCompatActivity() {
     private var selectedStatusId: String? = null
 
     // Для выбора изображения
+
     private var selectedImageUri: Uri? = null
     private val imagePickerLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         selectedImageUri = uri
@@ -264,16 +265,6 @@ class ProductDetailActivity : AppCompatActivity() {
                 binding.buttonOrder.text = "Сохранение..."
 
                 println("\n📤 ОТПРАВКА ОБНОВЛЕНИЯ ПРОДУКТА (multipart/form-data):")
-
-//                // ✅ ПРЕОБРАЗУЕМ ВСЕ ЗНАЧЕНИЯ В RequestBody
-//                val idBody = (oldProduct?.id ?: "").toRequestBody("text/plain".toMediaType())
-//                val nameBody = productName.toRequestBody("text/plain".toMediaType())
-//                val infoBody = productInfo.toRequestBody("text/plain".toMediaType())
-//                val costBody = productCost.toString().toRequestBody("text/plain".toMediaType())
-//                val isProductBody = (oldProduct?.isProduct ?: true).toString().toRequestBody("text/plain".toMediaType())
-//                val adressBody = address.toRequestBody("text/plain".toMediaType())
-//                val ypkIdBody = (oldProduct?.ypkId ?: "").toRequestBody("text/plain".toMediaType())
-//                val statusProductIdBody = statusProductIdToSend.toRequestBody("text/plain".toMediaType())
 
 
                 // Создаём Part для фото (если выбрано)

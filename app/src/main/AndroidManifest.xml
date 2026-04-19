@@ -16,6 +16,15 @@
         android:theme="@style/Theme.UPK_BTPI"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".feedback_detail_Activity"
+            android:exported="false" />
+        <activity
+            android:name=".order_detail_Activity"
+            android:exported="false" />
+        <activity
+            android:name=".content_about_order"
+            android:exported="false" />
+        <activity
             android:name=".NewOrderActivity"
             android:exported="false" />
         <activity

@@ -64,6 +64,7 @@ interface ApiService {
     @POST("api/Feedback")
     suspend fun addNewFeedback(@Body request: NewFeedbackDto) : Response <NewFeedbackResponse>
 
+
     @Multipart
     @PUT("api/Feedback")
     suspend fun updateFeedback(

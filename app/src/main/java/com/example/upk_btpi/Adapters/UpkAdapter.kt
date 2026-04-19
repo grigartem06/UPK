@@ -12,7 +12,8 @@ class UpkAdapter(
     private var OnItemClick:(YpksDto) -> Unit): RecyclerView.Adapter<UpkAdapter.UpkViewHolder>() {
 
     class UpkViewHolder(private val binding: ItemUpkBinding): RecyclerView.ViewHolder(binding.root){
-        fun bind(upk: YpksDto, onClick:(YpksDto)-> Unit) {binding.textViewName.text = upk.ypkName ?: "нет имени"}
+        fun bind(upk: YpksDto, onClick:(YpksDto)-> Unit) {
+            binding.textViewName.text = upk.ypkName ?: "нет имени"}
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UpkViewHolder {

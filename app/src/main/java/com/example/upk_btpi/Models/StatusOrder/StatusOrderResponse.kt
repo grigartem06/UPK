@@ -4,5 +4,5 @@ import com.google.gson.annotations.SerializedName
 
 data class StatusOrderResponse (
     @SerializedName("statusOrders")
-    val statusOtders: List<StatusOrderDto> = emptyList()
+    val statusOrders: List<StatusOrderDto> = emptyList()
 )

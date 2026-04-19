@@ -16,11 +16,15 @@ class OrderADapter(
             binding.textViewDate.text = order.date ?:"нет даты создания"
             binding.textViewUserComment.text = order.userComment ?:"нет коментария пользователя"
             binding.textViewCustomersComment.text = order.customersComment ?:"нет коментария исполнителя"
+
+            binding.root.setOnClickListener { onClick(order) }
         }
+
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): OrderViewHolder {
-        val binding = ItemOrderBinding.inflate(LayoutInflater.from(parent.context),parent,false)
+        val binding = ItemOrderBinding.inflate(LayoutInflater.from(parent.context), parent,false)
         return OrderViewHolder(binding)
     }
 

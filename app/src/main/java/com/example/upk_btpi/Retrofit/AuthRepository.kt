@@ -2,10 +2,13 @@ package com.example.upk_btpi.Retrofit
 
 import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.ui.geometry.Rect
+import com.example.upk_btpi.Adapters.FeedbackAdapter
 import com.example.upk_btpi.Models.Auth.AuthResponse
+import com.example.upk_btpi.Models.Feedback.FeedbackDto
 import com.example.upk_btpi.Models.Feedback.FeedbackResponse
 import com.example.upk_btpi.Models.LoginDto
 import com.example.upk_btpi.Models.Order.CreateOrderDto
+import com.example.upk_btpi.Models.Order.OrderDto
 import com.example.upk_btpi.Models.Order.OrdersResponse
 import com.example.upk_btpi.Models.Product.CreateProductDto
 import com.example.upk_btpi.Models.Product.ProductDto
@@ -278,6 +281,41 @@ class AuthRepository {
                 Result.failure(Exception("Ошибка ${response.code()}: $error"))
             }
         } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+
+    suspend fun getOrderById(orderId: String): Result<OrderDto> {
+        return try {
+            val response = RetrofitClient.apiService.getOrderById(orderId)
+
+            if (response.isSuccessful && response.body() != null) {
+                val order = response.body()!!
+                println("✅ Продукт получен: ${order.id}")
+                Result.success(order)
+            } else {
+                val error = response.errorBody()?.string() ?: "Неизвестная ошибка"
+                println("❌ ОШИБКА: ${response.code()} - $error")
+                Result.failure(Exception("Ошибка ${response.code()}: $error"))
+            }
+        } catch (e: Exception) {
+            println("❌ ИСКЛЮЧЕНИЕ: ${e.message}")
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getFeedbackById(feedbackId: String): Result<FeedbackDto> {
+        return  try {
+            val response = RetrofitClient.apiService.getFeedbackById(feedbackId)
+            if(response.isSuccessful && response.body() !=null) {
+                val feedback = response.body()!!
+                Result.success(feedback)
+            }
+            else{
+                val error = response.errorBody()?.string()?:"неизвестная ошибка"
+                Result.failure(Exception("Ошибка ${response.code()}: $error"))}
+        }catch (e: Exception) {
             Result.failure(e)
         }
     }

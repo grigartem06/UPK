@@ -17,6 +17,7 @@ class FeedbackAdapter(
     class FeedbackViewHolder(private val binding: ItemFeedbackBinding): RecyclerView.ViewHolder(binding.root) {
         fun bind(feedback: FeedbackDto, onItemClick: (FeedbackDto) -> Unit) {
         binding.textViewComment.text = feedback.comment
+            binding.root.setOnClickListener { onItemClick(feedback) }
         }
     }
 
@@ -25,7 +26,7 @@ class FeedbackAdapter(
         return FeedbackViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: FeedbackViewHolder, position: Int) { holder.bind(feedbacks[position], onItemClick) }
+    override fun onBindViewHolder(holder: FeedbackViewHolder, position: Int){ holder.bind(feedbacks[position], onItemClick) }
 
     fun updateFeedbacks(newFeedbacks: List<FeedbackDto>) {
         feedbacks = newFeedbacks

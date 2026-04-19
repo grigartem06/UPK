@@ -1,5 +1,6 @@
 package com.example.upk_btpi
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -59,7 +60,14 @@ class FeedbackFragment : Fragment() {
             }
         }
 
-    private fun onFeedbackClick(feedback: FeedbackDto) {}
+    private fun onFeedbackClick(feedback: FeedbackDto) {
+        val prefs = requireContext().getSharedPreferences("feedback_prefs",0)
+        prefs.edit().apply(){putString("selected_feedback_id", feedback.id); apply()}
+
+        //переход
+        val intent = Intent(requireContext(), feedback_detail_Activity::class.java)
+        startActivity(intent)
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()

@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Entry">
+    tools:context=".feedback_detail_Activity">
 
     <LinearLayout
         android:layout_width="409dp"
@@ -16,42 +16,67 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <TextView
+            android:id="@+id/textViewComment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="comment" />
+
         <EditText
-            android:id="@+id/editTextText2"
+            android:id="@+id/editTextTextComment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="text"
             android:minHeight="48dp"
-            android:text="79507531606" />
+            android:text="Name"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/textViewRaitind"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="raiting" />
 
         <EditText
-            android:id="@+id/editTextTextPassword3"
+            android:id="@+id/editTextTextRaitind"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:inputType="textPassword"
-            android:minHeight="48dp"
-            android:text="passwordUser1"
-            />
+            android:inputType="numberSigned"
+            android:visibility="gone"/>
 
-        <Switch
-            android:id="@+id/switch1"
+        <TextView
+            android:id="@+id/textViewUserName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="48dp"
-            android:text="сохранить вход" />
+            android:text="userName" />
 
-        <Button
-            android:id="@+id/buttonInput"
+        <ImageView
+            android:id="@+id/imageView2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="войти" />
+            tools:srcCompat="@tools:sample/avatars" />
 
         <Button
-            android:id="@+id/buttonGoToRegistrtion"
+            android:id="@+id/buttonEdit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="зарегистроваться" />
+            android:text="edit"
+            android:visibility="gone"/>
+
+        <Button
+            android:id="@+id/buttonSave"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="save"
+            android:visibility="gone"/>
+
+        <Button
+            android:id="@+id/buttonBack"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Back" />
+
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
