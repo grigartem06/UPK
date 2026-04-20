@@ -20,6 +20,7 @@ class UserAdapter(
             binding.textViewPhoneNumber.text = user.phoneNumber?: "нет номер телефона"
             if(user.isActive) {binding.textViewIsActive.text = "активный пользователь"}
                 else binding.textViewIsActive.text = "не активный пользователь"
+            binding.root.setOnClickListener { onClick(user) }
         }
     }
 

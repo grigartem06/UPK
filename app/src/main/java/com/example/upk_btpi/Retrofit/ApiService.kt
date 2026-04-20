@@ -64,7 +64,6 @@ interface ApiService {
     @POST("api/Feedback")
     suspend fun addNewFeedback(@Body request: NewFeedbackDto) : Response <NewFeedbackResponse>
 
-
     @Multipart
     @PUT("api/Feedback")
     suspend fun updateFeedback(
@@ -81,6 +80,7 @@ interface ApiService {
     suspend fun getOrdersForManagerHistory() : Response<OrdersResponse>
     @GET("api/Order/user")
     suspend fun getOrdersForUser() : Response<OrdersResponse>
+
     @GET("api/Order/user/History")
     suspend fun getOrdersForUserHistory() : Response<OrdersResponse>
 
@@ -114,9 +114,6 @@ interface ApiService {
 
     @POST("api/Product/{id}")
     suspend fun addNewProduct(@Body request: CreateProductDto) : Response<Unit>
-
-//    @PUT("api/Product")
-//    suspend fun updateProduct(@Body request: ProductDto)
 
     @Multipart
     @PUT("api/Product")
@@ -159,8 +156,9 @@ interface ApiService {
     suspend fun createUser(@Body request: CreateUserDto) : Response<Unit>
     @PUT("api/User")
     suspend fun  updateUser(@Body request: UpdateUserDto) : Response<Unit>
+
     @PUT("/api/user/admin")
-    suspend fun updateUserForAdmin(@Body request: UpdateUserForAdminDto)
+    suspend fun updateUserForAdmin(@Body request: UpdateUserForAdminDto): Response<Unit>
 
     //Ypk
     @GET("api/Ypk/All")

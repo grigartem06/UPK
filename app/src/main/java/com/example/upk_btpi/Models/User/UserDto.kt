@@ -1,5 +1,7 @@
 package com.example.upk_btpi.Models.User
 
+import com.example.upk_btpi.Models.Role.RoleDto
+import com.example.upk_btpi.Models.Ypk.YpksDto
 import com.google.gson.annotations.SerializedName
 
 data class UserDto(
@@ -14,5 +16,9 @@ data class UserDto(
     @SerializedName("userInfo")
     var userInfo: String? = null,
     @SerializedName("isActive")
-    var isActive: Boolean
+    var isActive: Boolean,
+    @SerializedName("role")
+    var role: RoleDto,
+    @SerializedName("ypk")
+    var ypk: YpksDto
 )

@@ -96,19 +96,19 @@ class AuthRepository {
         }
     }
 
-//    suspend fun getUserByID(userId: String): Result<UserDto> {
-//        return try {
-//            val response = RetrofitClient.apiService.getUserByID(userId)
-//            if (response.isSuccessful && response.body() != null) {
-//                Result.success(response.body()!!)
-//            } else {
-//                val error = response.errorBody()?.string() ?: "Неизвестная ошибка"
-//                Result.failure(Exception("Ошибка ${response.code()}: $error"))
-//            }
-//        } catch (e: Exception) {
-//            Result.failure(e)
-//        }
-//    }
+    suspend fun getUserByID(userId: String): Result<UserDto> {
+        return try {
+            val response = RetrofitClient.apiService.getUserByID(userId)
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                val error = response.errorBody()?.string() ?: "Неизвестная ошибка"
+                Result.failure(Exception("Ошибка ${response.code()}: $error"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 
 
     suspend fun getAllProducts(): Result<ProductsResponse>
@@ -319,6 +319,8 @@ class AuthRepository {
             Result.failure(e)
         }
     }
+
+
 
 
 }

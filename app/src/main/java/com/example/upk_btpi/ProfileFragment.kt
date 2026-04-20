@@ -27,14 +27,7 @@ class ProfileFragment : Fragment() {
     private  var _binding: FragmentProfileBinding? = null
     private val authRepository = AuthRepository()
     var isEditMode = false
-    var oldUser = UserDto(
-        id = "id",
-        fullname = null,
-        hashPassword = null,
-        phoneNumber = null,
-        userInfo = null,
-        isActive = true
-    )
+    private var  oldUser :UserDto ?=null
     private  val binding get() = _binding!!
     var nowUserID: String ?= null
     var role: String ?= null
@@ -109,7 +102,7 @@ class ProfileFragment : Fragment() {
 
                      //сохранение изменений
                      val request = UpdateUserDto(
-                         id = oldUser.id,
+                         id = oldUser!!.id,
                          fullname = binding.editTextTextName.text.toString(),
                          userInfo = binding.editTextTextInf.text.toString(),
                          phoneNumber = binding.editTextTextPhone.text.toString(),
@@ -210,9 +203,7 @@ class ProfileFragment : Fragment() {
                         visibility = View.VISIBLE
                         layoutManager = LinearLayoutManager(requireContext())
                         setHasFixedSize(true)
-                        adapter = UserAdapter(users) {user ->
-                            Toast.makeText(requireContext(), "Выбран: ${user.fullname}", Toast.LENGTH_SHORT).show()
-                        }
+                        adapter = UserAdapter(users) {user -> OnUserClick(user) }
                     }
                 }
             }
@@ -222,6 +213,17 @@ class ProfileFragment : Fragment() {
             }
         }
     }
+
+    private fun OnUserClick(user: UserDto) {
+        val prefs = requireContext().getSharedPreferences("user_prefs", 0)
+        prefs.edit().apply(){putString("selected_user_id",user.id);apply()}
+
+        //переход
+        val intent = Intent(requireContext(), user_detail_Activity::class.java)
+        startActivity(intent)
+    }
+
+
 
 
 

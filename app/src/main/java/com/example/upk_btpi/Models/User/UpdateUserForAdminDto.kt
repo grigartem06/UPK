@@ -16,5 +16,8 @@ data class UpdateUserForAdminDto(
     val roleId: String,
 
     @SerializedName("userInfo")
-    val userInfo: String? = null
+    val userInfo: String? = null,
+
+    @SerializedName("ypkId")
+    val ypkId: String? = null
 )
