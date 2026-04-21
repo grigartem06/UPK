@@ -1,15 +1,18 @@
 package com.example.upk_btpi
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.collection.emptyLongSet
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.upk_btpi.Adapters.UpkAdapter
+import com.example.upk_btpi.Models.Ypk.YpksDto
 import com.example.upk_btpi.Retrofit.AuthRepository
 import com.example.upk_btpi.databinding.FragmentUpkBinding
 import kotlinx.coroutines.launch
@@ -20,22 +23,11 @@ class UpkFragment : Fragment() {
     private val authRepository = AuthRepository()
     private var upkAdapter: UpkAdapter?=null
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         _binding = FragmentUpkBinding.inflate(inflater, container, false)
         return binding.root
     }
 
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//        binding.recyclerViewUpk.apply {layoutManager = LinearLayoutManager(requireContext())
-//        setHasFixedSize(true)}
-//
-//        loadListOfUpk()
-//    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -58,8 +50,7 @@ class UpkFragment : Fragment() {
                 else {
                     binding.recyclerViewUpk.apply { layoutManager = LinearLayoutManager(requireContext())
                     setHasFixedSize(true)
-                    adapter = UpkAdapter(upks) {upk ->
-                        Toast.makeText(requireContext(), "Выбран: ${upk.ypkName}", Toast.LENGTH_SHORT).show() }
+                    adapter = UpkAdapter(upks) {upk -> OnUpkClick(upk)}
                     }
                 }
             }
@@ -72,6 +63,16 @@ class UpkFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun OnUpkClick(ypk: YpksDto) {
+        //сохраняем id упк
+        var prefs = requireContext().getSharedPreferences("ypk_prefs",0)
+        prefs.edit().apply(){putString("selected_ypk_id",ypk.id);apply()}
+
+        //переход
+        val intent = Intent(requireContext(), ypk_detail_Activity::class.java)
+        startActivity(intent)
     }
 
 }

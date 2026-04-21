@@ -18,6 +18,7 @@ import com.example.upk_btpi.Models.StatusProduct.StatusProductResponse
 import com.example.upk_btpi.Models.User.UserDto
 import com.example.upk_btpi.Models.User.UserResponse
 import com.example.upk_btpi.Models.Ypk.YpkResponse
+import com.example.upk_btpi.Models.Ypk.YpksDto
 import retrofit2.Response
 import java.io.IOException
 
@@ -316,6 +317,39 @@ class AuthRepository {
                 val error = response.errorBody()?.string()?:"неизвестная ошибка"
                 Result.failure(Exception("Ошибка ${response.code()}: $error"))}
         }catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getUpkById(upkId: String): Result<YpksDto> {
+        return try {
+            val response = RetrofitClient.apiService.getYpkById(upkId)
+            if (response.isSuccessful && response.body() != null) {
+                val upk = response.body()!!
+                Result.success(upk)
+            } else {
+                val error = response.errorBody()?.string() ?: "Неизвестная ошибка"
+                Result.failure(Exception("Ошибка ${response.code()}: $error"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getProductsByYpk(ypkId: String): Result<ProductsResponse> {
+        return try {
+            val response = RetrofitClient.apiService.getProductsByYpk(ypkId)
+
+            if (response.isSuccessful && response.body() != null) {
+                val product = response.body()!!
+                Result.success(product)
+            } else {
+                val error = response.errorBody()?.string() ?: "Неизвестная ошибка"
+                println("❌ ОШИБКА: ${response.code()} - $error")
+                Result.failure(Exception("Ошибка ${response.code()}: $error"))
+            }
+        } catch (e: Exception) {
+            println("❌ ИСКЛЮЧЕНИЕ: ${e.message}")
             Result.failure(e)
         }
     }

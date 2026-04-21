@@ -7,6 +7,8 @@ data class YpksDto(
     val id: String,
     @SerializedName("ypkName")
     val ypkName: String?=null,
+    @SerializedName("description")
+    val description: String?=null,
     @SerializedName("isActive")
     val isActive: Boolean
 )

@@ -24,7 +24,6 @@ class MainFragment : Fragment() {
     private val binding get() = _binding!!
     private val authRepository = AuthRepository()
     private var productAdapter: ProductAdapter? = null
-
     private var allProducts : List<ProductDto> = emptyList()
 
     override fun onCreateView(
@@ -111,13 +110,9 @@ class MainFragment : Fragment() {
                         allProducts = response.products
                         filterProducts(FilterType.ALL)
                     }
-                    result.onFailure { error->
-                        Toast.makeText(requireContext(), error.message, Toast.LENGTH_LONG).show()
-                    }
+                    result.onFailure { error-> Toast.makeText(requireContext(), error.message, Toast.LENGTH_LONG).show() }
                 }
-
             }
-
         }
     }
 
@@ -131,7 +126,6 @@ class MainFragment : Fragment() {
         //переход на другой activity
         val intent = Intent(requireContext(), ProductDetailActivity::class.java)
         startActivity(intent)
-
     }
 
 

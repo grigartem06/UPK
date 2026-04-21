@@ -13,7 +13,9 @@ class UpkAdapter(
 
     class UpkViewHolder(private val binding: ItemUpkBinding): RecyclerView.ViewHolder(binding.root){
         fun bind(upk: YpksDto, onClick:(YpksDto)-> Unit) {
-            binding.textViewName.text = upk.ypkName ?: "нет имени"}
+            binding.textViewName.text = upk.ypkName ?: "нет имени"
+            binding.root.setOnClickListener { onClick(upk) }
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UpkViewHolder {
@@ -21,9 +23,7 @@ class UpkAdapter(
         return UpkViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: UpkViewHolder, position: Int) {
-        holder.bind(upks[position],OnItemClick)
-    }
+    override fun onBindViewHolder(holder: UpkViewHolder, position: Int) {  holder.bind(upks[position],OnItemClick) }
 
     fun updateUpks(newUpks: List<YpksDto>) {
         upks = newUpks

@@ -102,18 +102,17 @@ interface ApiService {
     //Product
     @GET("api/Product/All")
     suspend fun getAllProducts() : Response<ProductsResponse>
-
     @GET("api/Product/All/created")
     suspend fun getAllEdetingProducts() : Response<ProductsResponse>
-
     @GET("api/Product/{id}")
     suspend fun getProductById(@Path ("id") productId: String) : Response<ProductDto>
-
+    @GET("api/Product/byYpk/{id}")
+    suspend fun getProductsByYpk(@Path("id")ypkId: String) : Response<ProductsResponse>
     @DELETE("api/Product/{id}")
     suspend fun deleteProductById(@Path("id") productId: String)
-
     @POST("api/Product/{id}")
     suspend fun addNewProduct(@Body request: CreateProductDto) : Response<Unit>
+
 
     @Multipart
     @PUT("api/Product")
@@ -170,7 +169,7 @@ interface ApiService {
     @POST("api/Ypk")
     suspend fun createNewYpk(@Body request: CreateYpkDto) : Response<Unit>
     @PUT("api/Ypk")
-    suspend fun updateYpk(@Body request: UpdateYpkDto)
+    suspend fun updateYpk(@Body request: UpdateYpkDto) : Response<Unit>
 
 
 }

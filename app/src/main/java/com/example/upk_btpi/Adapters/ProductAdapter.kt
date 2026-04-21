@@ -32,17 +32,11 @@ class ProductViewHolder(private val binding: ItemProductBinding)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
-        val binding = ItemProductBinding.inflate(
-            LayoutInflater.from(parent.context),
-            parent,
-            false
-        )
+        val binding = ItemProductBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ProductViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
-        holder.bind(products[position], onItemClick)
-    }
+    override fun onBindViewHolder(holder: ProductViewHolder, position: Int) { holder.bind(products[position], onItemClick) }
 
     fun updateProducts(newProducts: List<ProductDto>) {
         products = newProducts

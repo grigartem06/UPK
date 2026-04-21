@@ -49,9 +49,9 @@ class user_detail_Activity : AppCompatActivity() {
 
         getInfAboutUser(selectedUserId.toString())
 
-        binding.buttonBack.setOnClickListener { back() }
-        binding.buttonEdit.setOnClickListener {  edit()}
-        binding.buttonSave.setOnClickListener {  save()}
+        binding.buttonBack.setOnClickListener { back()}
+        binding.buttonEdit.setOnClickListener { edit()}
+        binding.buttonSave.setOnClickListener { save()}
 
     }
 
@@ -82,7 +82,6 @@ class user_detail_Activity : AppCompatActivity() {
 
             // ✅ ИСПРАВЛЕНО: безопасный доступ к nullable role
             binding.textViewRole.text = user.role?.roleName ?: "Не назначена"
-
         }
     }
 

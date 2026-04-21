@@ -16,6 +16,9 @@
         android:theme="@style/Theme.UPK_BTPI"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".ypk_detail_Activity"
+            android:exported="false" />
+        <activity
             android:name=".user_detail_Activity"
             android:exported="false" />
         <activity
