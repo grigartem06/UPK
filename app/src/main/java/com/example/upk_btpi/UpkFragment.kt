@@ -31,13 +31,15 @@ class UpkFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // ✅ 3️⃣ Настройка RecyclerView (ТОЛЬКО здесь, не в onCreate!)
+
         binding.recyclerViewUpk.apply {
             layoutManager = LinearLayoutManager(requireContext())
             setHasFixedSize(true)
         }
         // ✅ 4️⃣ Загрузка данных
         loadListOfUpk()
+
+        binding.floatingActionButton.setOnClickListener { newUpk() }
     }
 
 
@@ -69,6 +71,16 @@ class UpkFragment : Fragment() {
         //сохраняем id упк
         var prefs = requireContext().getSharedPreferences("ypk_prefs",0)
         prefs.edit().apply(){putString("selected_ypk_id",ypk.id);apply()}
+
+        //переход
+        val intent = Intent(requireContext(), ypk_detail_Activity::class.java)
+        startActivity(intent)
+    }
+
+    private fun newUpk(){
+        //сохраняем id упк
+        var prefs = requireContext().getSharedPreferences("ypk_prefs",0)
+        prefs.edit().apply(){putString("selected_ypk_id","new_ypk");apply()}
 
         //переход
         val intent = Intent(requireContext(), ypk_detail_Activity::class.java)

@@ -1,11 +1,16 @@
 package com.example.upk_btpi.Retrofit
 
+import android.content.Context
+import android.net.Uri
 import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.findFirstRoot
 import com.example.upk_btpi.Adapters.FeedbackAdapter
 import com.example.upk_btpi.Models.Auth.AuthResponse
 import com.example.upk_btpi.Models.Feedback.FeedbackDto
 import com.example.upk_btpi.Models.Feedback.FeedbackResponse
+import com.example.upk_btpi.Models.Feedback.NewFeedbackDto
+import com.example.upk_btpi.Models.Feedback.NewFeedbackResponse
 import com.example.upk_btpi.Models.LoginDto
 import com.example.upk_btpi.Models.Order.CreateOrderDto
 import com.example.upk_btpi.Models.Order.OrderDto
@@ -17,9 +22,15 @@ import com.example.upk_btpi.Models.RegistrationDto
 import com.example.upk_btpi.Models.StatusProduct.StatusProductResponse
 import com.example.upk_btpi.Models.User.UserDto
 import com.example.upk_btpi.Models.User.UserResponse
+import com.example.upk_btpi.Models.Ypk.CreateYpkDto
 import com.example.upk_btpi.Models.Ypk.YpkResponse
 import com.example.upk_btpi.Models.Ypk.YpksDto
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Response
+import java.io.File
 import java.io.IOException
 
 class AuthRepository {
@@ -353,6 +364,81 @@ class AuthRepository {
             Result.failure(e)
         }
     }
+
+
+
+        suspend fun addNewFeedback(
+            comment: String,
+            raiting: Int,
+            imageUri: Uri? = null,
+            context: Context
+        ): Result<String> {
+            return try {
+                // Создаем RequestBody для текстовых полей
+                val commentBody = comment.toRequestBody("text/plain".toMediaType())
+                val raitingBody = raiting.toString().toRequestBody("text/plain".toMediaType())
+
+                // Создаем Part для изображения (если есть)
+                val imagePart = imageUri?.let { uri ->
+                    createImagePart(uri, context)
+                }
+
+                val response = RetrofitClient.apiService.addNewFeedback(
+                    comment = commentBody,
+                    raiting = raitingBody,
+                    image = imagePart
+                )
+
+                if (response.isSuccessful && response.body() != null) {
+                    val feedbackId = response.body()!!
+                    println("✅ Feedback создан с ID: $feedbackId")
+                    Result.success(feedbackId)
+                } else {
+                    val error = response.errorBody()?.string() ?: "Неизвестная ошибка"
+                    println("❌ ОШИБКА: ${response.code()} - $error")
+                    Result.failure(Exception("Ошибка ${response.code()}: $error"))
+                }
+
+            } catch (e: Exception) {
+                println("❌ ИСКЛЮЧЕНИЕ: ${e.message}")
+                e.printStackTrace()
+                Result.failure(e)
+            }
+        }
+
+        // Вспомогательный метод для создания image part
+        private fun createImagePart(uri: Uri, context: Context): MultipartBody.Part {
+            val inputStream = context.contentResolver.openInputStream(uri)
+            val tempFile = File.createTempFile("feedback_image", ".jpg", context.cacheDir)
+
+            inputStream?.use { input ->
+                tempFile.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+
+            val requestBody = tempFile.asRequestBody("image/jpeg".toMediaType())
+            return MultipartBody.Part.createFormData("Image", tempFile.name, requestBody)
+        }
+
+
+    suspend fun addNewYpk(newYpk: CreateYpkDto ): Result<String> {
+        return try {
+            val response = RetrofitClient.apiService.addNewYpk(newYpk)
+            if(response.isSuccessful&& response.body()!=null){
+                val newYpkId  = response.body()!!
+                Result.success(newYpkId)
+            }else{
+                val error = response.errorBody()?.string() ?: "Неизвестная ошибка"
+                println("❌ ОШИБКА: ${response.code()} - $error")
+                Result.failure(Exception("Ошибка ${response.code()}: $error"))
+            }
+        }catch (e: Exception) {
+            println("❌ ИСКЛЮЧЕНИЕ: ${e.message}")
+            Result.failure(e) }
+    }
+
+
 
 
 

@@ -9,6 +9,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.upk_btpi.Models.Feedback.FeedbackDto
+import com.example.upk_btpi.Models.Feedback.NewFeedbackDto
 import com.example.upk_btpi.Retrofit.AuthRepository
 import com.example.upk_btpi.Retrofit.RetrofitClient
 import com.example.upk_btpi.databinding.ActivityFeedbackDetailBinding
@@ -46,26 +47,37 @@ class feedback_detail_Activity : AppCompatActivity() {
             finish()
             return }
 
-        //открывает доступ к "изменению"
-        setupUIByRole()
-        //загрузка данных
-        loadInfoAboutFeedback(selectedFeedback.toString())
-
-        //обработка кнопок
-        binding.buttonEdit.setOnClickListener {
-            EditMode=true
+        if(selectedFeedback == "new_feedback"){
+            newFeedback()
+        }else{
+            //открывает доступ к "изменению"
+            setupUIByRole()
+            //загрузка данных
+            loadInfoAboutFeedback(selectedFeedback.toString())
+            //обработка кнопок
+            binding.buttonEdit.setOnClickListener {
+                EditMode=true
                 //скрываем поля вывода
-            binding.textViewComment.visibility = View.GONE
-            binding.textViewRaitind.visibility = View.GONE
+                binding.textViewComment.visibility = View.GONE
+                binding.textViewRaitind.visibility = View.GONE
 
-            //делаем видимыми поля ввода
-            binding.editTextTextComment.visibility = View.VISIBLE
-            binding.editTextTextRaitind.visibility = View.VISIBLE
+                //делаем видимыми поля ввода
+                binding.editTextTextComment.visibility = View.VISIBLE
+                binding.editTextTextRaitind.visibility = View.VISIBLE
 
-            binding.buttonSave.visibility= View.VISIBLE
-            binding.buttonEdit.visibility= View.GONE
+                binding.buttonSave.visibility= View.VISIBLE
+                binding.buttonEdit.visibility= View.GONE
+
+                binding.buttonSave.setOnClickListener {saveUpdate(selectedFeedback.toString())}
+            }
         }
-        binding.buttonSave.setOnClickListener {saveUpdate(selectedFeedback.toString())}
+
+
+
+
+
+
+
         binding.buttonBack.setOnClickListener {  finish()}
 
     }
@@ -76,9 +88,7 @@ class feedback_detail_Activity : AppCompatActivity() {
             lifecycleScope.launch {
                 val result = authRepository.getFeedbackById(feedbackId)
                 result.onSuccess { feedback -> displayFeedback(feedback) }
-                result.onFailure { Toast.makeText(this@feedback_detail_Activity, "❌ Ошибка получения данных", Toast.LENGTH_SHORT).show() }
-
-            }
+                result.onFailure { Toast.makeText(this@feedback_detail_Activity, "❌ Ошибка получения данных", Toast.LENGTH_SHORT).show() } }
     }
 
     private fun displayFeedback(feedback: FeedbackDto) {
@@ -94,31 +104,22 @@ class feedback_detail_Activity : AppCompatActivity() {
                 val result = authRepository.getFeedbackById(feedbackId)
 
                 result.onSuccess { feedback ->
-                    // ✅ Преобразуем значения в RequestBody
+                    //Преобразуем значения в RequestBody
                     val idBody = (feedback.id ?: "").toRequestBody("text/plain".toMediaType())
                     val commentBody = binding.editTextTextComment.text.toString().trim().toRequestBody("text/plain".toMediaType())
                     val ratingValue = binding.editTextTextRaitind.text.toString().trim().toIntOrNull() ?: 0
                     val ratingBody = ratingValue.toString().toRequestBody("text/plain".toMediaType())
 
-                    // ✅ ВЫЗОВ API
-                    val response = RetrofitClient.apiService.updateFeedback(
-                        id = idBody,
-                        feedbackName = commentBody,
-                        rating = ratingBody
-                    )
+                    //ВЫЗОВ API
+                    val response = RetrofitClient.apiService.updateFeedback(id = idBody, feedbackName = commentBody, rating = ratingBody)
 
-                    if (response.isSuccessful) {
-                        Toast.makeText(this@feedback_detail_Activity, "✅ Успешно", Toast.LENGTH_SHORT).show()
-                    } else {
+                    if (response.isSuccessful) { Toast.makeText(this@feedback_detail_Activity, "✅ Успешно", Toast.LENGTH_SHORT).show() }
+                    else {
                         val error = response.errorBody()?.string() ?: "Неизвестная ошибка"
                         println("❌ ОШИБКА: ${response.code()} - $error")
-                        Toast.makeText(this@feedback_detail_Activity, "❌ Ошибка: $error", Toast.LENGTH_LONG).show()
-                    }
+                        Toast.makeText(this@feedback_detail_Activity, "❌ Ошибка: $error", Toast.LENGTH_LONG).show() }
                 }
-
-                result.onFailure {
-                    Toast.makeText(this@feedback_detail_Activity, "❌ Ошибка получения данных", Toast.LENGTH_SHORT).show()
-                }
+                result.onFailure { Toast.makeText(this@feedback_detail_Activity, "❌ Ошибка получения данных", Toast.LENGTH_SHORT).show() }
 
             } catch (e: Exception) {
                 println("❌ ИСКЛЮЧЕНИЕ: ${e.message}")
@@ -127,6 +128,41 @@ class feedback_detail_Activity : AppCompatActivity() {
             }
         }
 
+    }
+
+    private fun newFeedback(){
+        //отображаем поля ввода  и скрываем вывода
+        binding.editTextTextComment.visibility = View.VISIBLE
+        binding.editTextTextRaitind.visibility = View.VISIBLE
+
+        binding.textViewComment.visibility= View.GONE
+        binding.textViewRaitind.visibility= View.GONE
+
+        binding.buttonSave.visibility = View.VISIBLE
+
+        binding.buttonSave.setOnClickListener {
+            lifecycleScope.launch {
+                try {
+                    var result = authRepository.addNewFeedback(
+                        binding.editTextTextComment.text.toString(),
+                        binding.editTextTextRaitind.text.toString().trim().toInt(),
+                        imageUri = null,
+                        this@feedback_detail_Activity
+                    )
+
+                    result.onSuccess { feedbackId ->
+                        Toast.makeText(this@feedback_detail_Activity, "✅ Отзыв отправлен!", Toast.LENGTH_SHORT).show()
+                        println("ID отзыва: $feedbackId")
+                        finish()
+                    }
+
+                    result.onFailure { error ->
+                        Toast.makeText(this@feedback_detail_Activity, "❌ ${error.message}", Toast.LENGTH_SHORT).show()
+                    }
+
+                }catch (e: Exception) {}
+            }
+        }
     }
 
 

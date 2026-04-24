@@ -8,10 +8,12 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.VIEW_MODEL_STORE_OWNER_KEY
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.upk_btpi.Adapters.ProductAdapter
 import com.example.upk_btpi.Models.Product.ProductDto
+import com.example.upk_btpi.Models.Ypk.CreateYpkDto
 import com.example.upk_btpi.Models.Ypk.UpdateYpkDto
 import com.example.upk_btpi.Models.Ypk.YpksDto
 import com.example.upk_btpi.Retrofit.AuthRepository
@@ -50,19 +52,37 @@ class ypk_detail_Activity : AppCompatActivity() {
             return
         }
 
-        binding.recyclerViewProductByUpk.apply {
-            layoutManager = LinearLayoutManager(this@ypk_detail_Activity)
-            setHasFixedSize(true)
-        }
+        if(selectedUpkId == "new_ypk") {
+            binding.recyclerViewProductByUpk.visibility = View.GONE
+            binding.textViewName.visibility = View.GONE
+            binding.textViewContent.visibility = View.GONE
 
-        getInfoAboutUpk(selectedUpkId!!)
-        loadProducts(selectedUpkId.toString())
+            binding.editTextTextName.visibility = View.VISIBLE
+            binding.editTextTextContent.visibility = View.VISIBLE
+
+            binding.buttonSave.visibility = View.VISIBLE
+
+            binding.buttonSave.setOnClickListener { addnewYpk() }
+
+        }
+        else{
+            binding.recyclerViewProductByUpk.apply {
+                layoutManager = LinearLayoutManager(this@ypk_detail_Activity)
+                setHasFixedSize(true)
+            }
+
+            getInfoAboutUpk(selectedUpkId!!)
+            loadProducts(selectedUpkId.toString())
+
+            binding.buttonEdit.setOnClickListener { edit()}
+            binding.buttonSave.setOnClickListener { save()}
+
+        }
 
 
         //действия кнопок
         binding.buttonBack.setOnClickListener { back()}
-        binding.buttonEdit.setOnClickListener { edit()}
-        binding.buttonSave.setOnClickListener { save()}
+
 
     }
 
@@ -171,6 +191,18 @@ class ypk_detail_Activity : AppCompatActivity() {
         //переход на другой activity
         val intent = Intent(this@ypk_detail_Activity, ProductDetailActivity::class.java)
         startActivity(intent)
+    }
+
+    fun addnewYpk() {
+
+        val newYpk = CreateYpkDto(binding.editTextTextName.text.toString(),binding.editTextTextContent.text.toString())
+
+        lifecycleScope.launch {
+            val result = authRepository.addNewYpk(newYpk)
+            result.onSuccess { Toast.makeText(this@ypk_detail_Activity, "успех", Toast.LENGTH_SHORT).show() }
+            result.onFailure {  }
+        }
+
     }
 
 

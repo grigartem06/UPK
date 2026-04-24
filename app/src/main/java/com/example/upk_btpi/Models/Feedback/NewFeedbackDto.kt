@@ -1,15 +1,16 @@
 package com.example.upk_btpi.Models.Feedback
 
 import com.google.gson.annotations.SerializedName
+import okhttp3.MultipartBody
 import java.io.File
 
 data class NewFeedbackDto(
-    @SerializedName("FeedbackName")
-    val FeedbackName: String,
+    @SerializedName("Comment")
+    val Comment: String,
 
     @SerializedName("Raiting")
     val Raiting: Int,
 
     @SerializedName("Image")
-    val Image: File?= null
+    val Image: MultipartBody.Part?= null
 )

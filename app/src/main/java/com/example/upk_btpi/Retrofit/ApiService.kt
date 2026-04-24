@@ -1,5 +1,6 @@
 package com.example.upk_btpi.Retrofit
 
+import android.media.Image
 import com.example.upk_btpi.Models.Auth.AuthResponse
 import com.example.upk_btpi.Models.Feedback.FeedbackDto
 import com.example.upk_btpi.Models.Feedback.FeedbackResponse
@@ -61,8 +62,13 @@ interface ApiService {
     @DELETE("api/Feedback/{id}")
     suspend fun deleteFeedbackById(@Path("id") feedbackId: String)
 
+    @Multipart
     @POST("api/Feedback")
-    suspend fun addNewFeedback(@Body request: NewFeedbackDto) : Response <NewFeedbackResponse>
+    suspend fun addNewFeedback(
+        @Part("Comment") comment: RequestBody,
+        @Part("Raiting") raiting: RequestBody,
+        @Part image: MultipartBody.Part? = null
+    ) : Response <String>
 
     @Multipart
     @PUT("api/Feedback")
@@ -167,7 +173,7 @@ interface ApiService {
     @DELETE("api/Ypk/{id}")
     suspend fun  deleteYpkById(@Path("id") ypkId: String)
     @POST("api/Ypk")
-    suspend fun createNewYpk(@Body request: CreateYpkDto) : Response<Unit>
+    suspend fun addNewYpk(@Body request: CreateYpkDto) : Response<String>
     @PUT("api/Ypk")
     suspend fun updateYpk(@Body request: UpdateYpkDto) : Response<Unit>
 

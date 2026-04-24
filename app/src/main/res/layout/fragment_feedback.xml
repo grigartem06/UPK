@@ -24,6 +24,15 @@
             android:layout_height="match_parent"
             android:layout_margin="10sp"/>
 
-
     </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/floatingActionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:src="@drawable/plus"
+        android:contentDescription="добавить отзыв"
+        android:layout_gravity="end|bottom"
+        android:layout_margin="5sp"/>
 </FrameLayout>

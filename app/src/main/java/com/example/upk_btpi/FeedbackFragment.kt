@@ -39,6 +39,8 @@ class FeedbackFragment : Fragment() {
         setHasFixedSize(true)}
 
         loadFeedbacks()
+
+        binding.floatingActionButton.setOnClickListener { AddNewFeedback() }
     }
 
     fun loadFeedbacks() {
@@ -63,6 +65,15 @@ class FeedbackFragment : Fragment() {
     private fun onFeedbackClick(feedback: FeedbackDto) {
         val prefs = requireContext().getSharedPreferences("feedback_prefs",0)
         prefs.edit().apply(){putString("selected_feedback_id", feedback.id); apply()}
+
+        //переход
+        val intent = Intent(requireContext(), feedback_detail_Activity::class.java)
+        startActivity(intent)
+    }
+
+    private fun AddNewFeedback(){
+        val prefs = requireContext().getSharedPreferences("feedback_prefs",0)
+        prefs.edit().apply(){putString("selected_feedback_id", "new_feedback"); apply()}
 
         //переход
         val intent = Intent(requireContext(), feedback_detail_Activity::class.java)
