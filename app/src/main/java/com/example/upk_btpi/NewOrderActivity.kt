@@ -78,7 +78,6 @@ class NewOrderActivity : AppCompatActivity() {
         }
 
             lifecycleScope.launch {
-
                 try {
                     val createOrderDto = CreateOrderDto(
                         productId = NewproductId,
@@ -88,24 +87,11 @@ class NewOrderActivity : AppCompatActivity() {
                     )
 
                     val result = authRepository.createNewOrder(createOrderDto)
-
                     result.onSuccess {
-                        Toast.makeText(
-                            this@NewOrderActivity,
-                            "✅ Заказ оформлен",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        Toast.makeText(this@NewOrderActivity, "✅ Заказ оформлен", Toast.LENGTH_SHORT).show()
                         finish()
                     }
-
-                    // ✅ 9️⃣ Логирование ошибки
-                    result.onFailure { error ->
-                        Toast.makeText(
-                            this@NewOrderActivity,
-                            "❌ ${error.message}",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
+                    result.onFailure { error -> Toast.makeText(this@NewOrderActivity, "❌ ${error.message}", Toast.LENGTH_LONG).show() }
 
                 } catch (e: Exception) {
                     e.printStackTrace()

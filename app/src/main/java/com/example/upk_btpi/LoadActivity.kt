@@ -46,7 +46,6 @@ class LoadActivity : AppCompatActivity() {
                             goToEntry()
                         }
 
-
                         //  Переход на главную страницу
                         val intent = Intent(this@LoadActivity, MainPage::class.java)
                         startActivity(intent)
@@ -56,12 +55,10 @@ class LoadActivity : AppCompatActivity() {
                         val errorMessage = error.message ?: "Неизвестная ошибка"
                         Toast.makeText(this@LoadActivity, "❌ $errorMessage",
                             Toast.LENGTH_LONG).show()
+                        goToEntry()
                     }
                 }
-            }else
-            {
-                goToEntry()
-            }
+            }else { goToEntry() }
         }
         else
         {

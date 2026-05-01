@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -63,7 +64,6 @@ class ypk_detail_Activity : AppCompatActivity() {
             binding.buttonSave.visibility = View.VISIBLE
 
             binding.buttonSave.setOnClickListener { addnewYpk() }
-
         }
         else{
             binding.recyclerViewProductByUpk.apply {
@@ -79,11 +79,48 @@ class ypk_detail_Activity : AppCompatActivity() {
 
         }
 
+        if (userRole == "Admin") {binding.buttonDelete.visibility = View.VISIBLE}
+
 
         //действия кнопок
         binding.buttonBack.setOnClickListener { back()}
+        binding.buttonDelete.setOnClickListener { delete() }
 
 
+    }
+
+    private fun delete() {
+        AlertDialog.Builder(this)
+            .setTitle("Удаление упк")
+            .setMessage("Вы уверены, что хотите удалить этот упк? Это действие нельзя отменить.")
+            .setPositiveButton("Удалить") { _, _ -> performDeleteUpk(selectedUpkId!!) }
+            .setNegativeButton("Отмена", null).show()
+    }
+
+    private fun performDeleteUpk(selectedUpkId: String) {
+        lifecycleScope.launch {
+            try {
+                println("🗑️ Удаление заказа: $selectedUpkId")
+
+                val response = RetrofitClient.apiService.deleteYpkById(selectedUpkId)
+
+                println("📥 Ответ сервера: ${response.code()}")
+
+                if (response.isSuccessful) {
+                    println("✅ заказ удалён")
+                    Toast.makeText(this@ypk_detail_Activity, "✅ упк удалён", Toast.LENGTH_SHORT).show()
+                    finish()
+                } else {
+                    val error = response.errorBody()?.string() ?: "Неизвестная ошибка"
+                    println("❌ ОШИБКА: ${response.code()} - $error")
+                    Toast.makeText(this@ypk_detail_Activity, "❌ Ошибка: $error", Toast.LENGTH_LONG).show()
+                }
+            } catch (e: Exception) {
+                println("❌ ИСКЛЮЧЕНИЕ: ${e.message}")
+                e.printStackTrace()
+                Toast.makeText(this@ypk_detail_Activity, "❌ ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private fun getInfoAboutUpk(selectedUpkId: String) {
@@ -204,8 +241,4 @@ class ypk_detail_Activity : AppCompatActivity() {
         }
 
     }
-
-
-
-
 }

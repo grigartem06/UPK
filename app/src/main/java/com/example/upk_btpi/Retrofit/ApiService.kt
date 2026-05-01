@@ -60,7 +60,7 @@ interface ApiService {
     suspend fun getFeedbackById(@Path("id") feedbackId: String) : Response<FeedbackDto>
 
     @DELETE("api/Feedback/{id}")
-    suspend fun deleteFeedbackById(@Path("id") feedbackId: String)
+    suspend fun deleteFeedbackById(@Path("id") feedbackId: String) : Response<Unit>
 
     @Multipart
     @POST("api/Feedback")
@@ -97,7 +97,7 @@ interface ApiService {
     suspend fun getOrderById(@Path ("id") orderId: String ) : Response<OrderDto>
 
     @DELETE("api/Order/{id}")
-    suspend fun deleteOrderById(@Path("id") orderId: String)
+    suspend fun deleteOrderById(@Path("id") orderId: String): Response<Unit>
 
     @POST("api/Order")
     suspend fun addNewOrder(@Body request: CreateOrderDto) : Response<Unit>
@@ -115,9 +115,24 @@ interface ApiService {
     @GET("api/Product/byYpk/{id}")
     suspend fun getProductsByYpk(@Path("id")ypkId: String) : Response<ProductsResponse>
     @DELETE("api/Product/{id}")
-    suspend fun deleteProductById(@Path("id") productId: String)
+    suspend fun deleteProductById(@Path("id") productId: String): Response<Unit>
     @POST("api/Product/{id}")
     suspend fun addNewProduct(@Body request: CreateProductDto) : Response<Unit>
+
+    // Добавление нового продукта
+    @Multipart
+    @POST("api/Product")
+    suspend fun createProduct(
+        @Part("ProductName") productName: RequestBody,
+        @Part("ProductInfo") productInfo: RequestBody?,
+        @Part("ProductCost") productCost: RequestBody,
+        @Part("IsProduct") isProduct: RequestBody,
+        @Part("Adres") adres: RequestBody?,
+        @Part("YpkId") ypkId: RequestBody,
+        @Part("StatusProductId") statusProductId: RequestBody?,
+        @Part photo: MultipartBody.Part? = null
+    ): Response<String>  // Возвращает ID созданного продукта
+
 
 
     @Multipart
@@ -128,7 +143,7 @@ interface ApiService {
         @Part("ProductInfo") productInfo: RequestBody,  // ✅ RequestBody
         @Part("ProductCost") productCost: RequestBody,  // ✅ RequestBody
         @Part("IsProduct") isProduct: RequestBody,      // ✅ RequestBody
-        @Part("Adress") adress: RequestBody,            // ✅ RequestBody
+        @Part("Adres") adres: RequestBody,            // ✅ RequestBody
         @Part photo: MultipartBody.Part?,               // ✅ MultipartBody.Part
         @Part("YpkId") ypkId: RequestBody,              // ✅ RequestBody
         @Part("StatusProductId") statusProductId: RequestBody  // ✅ RequestBody
@@ -156,7 +171,7 @@ interface ApiService {
     @GET("api/User/{id}")
     suspend fun  getUserByID(@Path("id") userId: String) : Response<UserDto>
     @DELETE("api/User/{id}")
-    suspend fun deleteUserByID(@Path( "id") userId: String)
+    suspend fun deleteUserByID(@Path( "id") userId: String): Response<Unit>
     @POST("api/User")
     suspend fun createUser(@Body request: CreateUserDto) : Response<Unit>
     @PUT("api/User")
@@ -171,7 +186,7 @@ interface ApiService {
     @GET("api/Ypk/{id}")
     suspend fun getYpkById(@Path ("id") ypkId: String) : Response<YpksDto>
     @DELETE("api/Ypk/{id}")
-    suspend fun  deleteYpkById(@Path("id") ypkId: String)
+    suspend fun  deleteYpkById(@Path("id") ypkId: String) : Response<Unit>
     @POST("api/Ypk")
     suspend fun addNewYpk(@Body request: CreateYpkDto) : Response<String>
     @PUT("api/Ypk")

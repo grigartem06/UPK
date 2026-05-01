@@ -54,6 +54,7 @@ class MainFragment : Fragment() {
             Toast.makeText(requireContext(), "Поиск: $query", Toast.LENGTH_SHORT).show()
         }
         binding.checkBox.setOnClickListener {loadProducts()  }
+        binding.floatingActionButton.setOnClickListener { addNewProduct() }
     }
 
     private enum class FilterType { ALL, PRODUCTS, SERVICES }
@@ -89,9 +90,7 @@ class MainFragment : Fragment() {
                     allProducts = response.products
                     filterProducts(FilterType.ALL)
                 }
-                result.onFailure { error->
-                    Toast.makeText(requireContext(), error.message, Toast.LENGTH_LONG).show()
-                }
+                result.onFailure { error-> Toast.makeText(requireContext(), error.message, Toast.LENGTH_LONG).show() }
             }
             else {
                 if (binding.checkBox.isChecked) {
@@ -100,9 +99,7 @@ class MainFragment : Fragment() {
                         allProducts = response.products
                         filterProducts(FilterType.ALL)
                     }
-                    result.onFailure { error->
-                        Toast.makeText(requireContext(), error.message, Toast.LENGTH_LONG).show()
-                    }
+                    result.onFailure { error-> Toast.makeText(requireContext(), error.message, Toast.LENGTH_LONG).show() }
                 }
                 else {
                     val result = authRepository.getAllProducts()
@@ -118,16 +115,21 @@ class MainFragment : Fragment() {
 
     private fun onProductClick(product: ProductDto) {
         val prefs = requireContext().getSharedPreferences("product_prefs", 0)
-        prefs.edit().apply(){
-            putString("selected_product_id", product.id)
-            apply()
-        }
+        prefs.edit().apply(){ putString("selected_product_id", product.id);apply() }
 
         //переход на другой activity
         val intent = Intent(requireContext(), ProductDetailActivity::class.java)
         startActivity(intent)
     }
 
+    private fun addNewProduct(){
+        val prefs = requireContext().getSharedPreferences("product_prefs", 0)
+        prefs.edit().apply(){ putString("selected_product_id", "add_new_product");apply() }
+
+        //переход на другой activity
+        val intent = Intent(requireContext(), ProductDetailActivity::class.java)
+        startActivity(intent)
+    }
 
 
     override fun onDestroyView() {

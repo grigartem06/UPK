@@ -6,6 +6,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.core.animateDecay
 import androidx.core.view.ViewCompat
@@ -52,6 +53,10 @@ class user_detail_Activity : AppCompatActivity() {
         binding.buttonBack.setOnClickListener { back()}
         binding.buttonEdit.setOnClickListener { edit()}
         binding.buttonSave.setOnClickListener { save()}
+        binding.buttonDelete.setOnClickListener { delete() }
+
+
+
 
     }
 
@@ -65,6 +70,7 @@ class user_detail_Activity : AppCompatActivity() {
     }
 
     private fun displayUserInf(user: UserDto) {
+        if(oldUser.role.roleName!="Admin") {binding.buttonDelete.visibility= View.VISIBLE}
         if (EditMode) {
             // ✅ В режиме редактирования заполняем EditText
             binding.editTextTextName.setText(user.fullname ?: "")
@@ -370,6 +376,37 @@ class user_detail_Activity : AppCompatActivity() {
             binding.spinnerYpk.visibility = View.GONE
             binding.textViewYpk?.visibility = View.GONE
             selectedYpk = null // Сбрасываем выбор
+        }
+    }
+
+    private fun delete() {
+        AlertDialog.Builder(this)
+            .setTitle("Удаление упк")
+            .setMessage("Вы уверены, что хотите удалить этого пользователя? Это действие нельзя отменить.")
+            .setPositiveButton("Удалить") { _, _ -> performDeleteUpk(selectedUserId!!) }
+            .setNegativeButton("Отмена", null).show()
+    }
+
+    private fun performDeleteUpk(selectedUpkId: String) {
+        lifecycleScope.launch {
+            try {
+                println("🗑️ Удаление пользователя: $selectedUpkId")
+                val response = RetrofitClient.apiService.deleteUserByID(selectedUpkId)
+                println("📥 Ответ сервера: ${response.code()}")
+                if (response.isSuccessful) {
+                    println("✅ пользователь удалён")
+                    Toast.makeText(this@user_detail_Activity, "✅ пользователь удалён", Toast.LENGTH_SHORT).show()
+                    finish()
+                } else {
+                    val error = response.errorBody()?.string() ?: "Неизвестная ошибка"
+                    println("❌ ОШИБКА: ${response.code()} - $error")
+                    Toast.makeText(this@user_detail_Activity, "❌ Ошибка: $error", Toast.LENGTH_LONG).show()
+                }
+            } catch (e: Exception) {
+                println("❌ ИСКЛЮЧЕНИЕ: ${e.message}")
+                e.printStackTrace()
+                Toast.makeText(this@user_detail_Activity, "❌ ${e.message}", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

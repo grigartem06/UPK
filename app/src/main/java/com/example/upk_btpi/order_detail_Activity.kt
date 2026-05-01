@@ -6,6 +6,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -50,7 +51,10 @@ class order_detail_Activity : AppCompatActivity() {
 
         //загрузка данных
         loadOrderDetails(currentOrderId)
-        if(userRole !="DefaultUser") {binding.editButton.visibility = View.VISIBLE}
+        if(userRole !="DefaultUser") {
+            binding.editButton.visibility = View.VISIBLE
+            binding.buttonDelete.visibility = View.VISIBLE
+        }
 
         binding.editButton.setOnClickListener {
             if(userRole == "Manager"){
@@ -84,6 +88,7 @@ class order_detail_Activity : AppCompatActivity() {
 
         binding.ButtonSave.setOnClickListener { saveChanges() }
         binding.backBtn.setOnClickListener {  finish()}
+        binding.buttonDelete.setOnClickListener { deleteOrder() }
     }
 
 
@@ -169,6 +174,41 @@ class order_detail_Activity : AppCompatActivity() {
                 }
 
             }catch (e: Exception) {}
+        }
+    }
+
+
+    private fun deleteOrder() {
+        AlertDialog.Builder(this)
+            .setTitle("Удаление заказа")
+            .setMessage("Вы уверены, что хотите удалить этот заказ? Это действие нельзя отменить.")
+            .setPositiveButton("Удалить") { _, _ -> performDeleteOrder(currentOrderId) }
+            .setNegativeButton("Отмена", null).show()
+    }
+
+    private fun performDeleteOrder(currentOrderId: String) {
+        lifecycleScope.launch {
+            try {
+                println("🗑️ Удаление заказа: $currentOrderId")
+
+                val response = RetrofitClient.apiService.deleteOrderById(currentOrderId)
+
+                println("📥 Ответ сервера: ${response.code()}")
+
+                if (response.isSuccessful) {
+                    println("✅ заказ удалён")
+                    Toast.makeText(this@order_detail_Activity, "✅ Отзыв удалён", Toast.LENGTH_SHORT).show()
+                    finish()
+                } else {
+                    val error = response.errorBody()?.string() ?: "Неизвестная ошибка"
+                    println("❌ ОШИБКА: ${response.code()} - $error")
+                    Toast.makeText(this@order_detail_Activity, "❌ Ошибка: $error", Toast.LENGTH_LONG).show()
+                }
+            } catch (e: Exception) {
+                println("❌ ИСКЛЮЧЕНИЕ: ${e.message}")
+                e.printStackTrace()
+                Toast.makeText(this@order_detail_Activity, "❌ ${e.message}", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

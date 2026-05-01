@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
@@ -22,177 +23,261 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Кнопка "Назад" -->
-            <Button
-                android:id="@+id/buttonBack"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:text="← Назад" />
-
-            <!-- Изображение продукта -->
-            <ImageView
-                android:id="@+id/imageViewProduct"
-                android:layout_width="match_parent"
-                android:layout_height="250dp"
-                android:layout_marginBottom="16dp"
-                android:background="@android:color/darker_gray"
-                android:scaleType="centerCrop"
-                android:visibility="gone"
-                android:contentDescription="Изображение продукта"
-                android:clickable="true"
-                android:focusable="true"/>
-
-            <!-- Название -->
-            <EditText
-                android:id="@+id/textViewName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:hint="Название продукта"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:inputType="text"
-                android:focusable="false"
-                android:clickable="false"
-                android:cursorVisible="false"/>
-
-            <!-- Тип (Товар/Услуга) -->
+            <!-- YPK Selection -->
             <TextView
-                android:id="@+id/textViewType"
+                android:id="@+id/textViewYpkLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="УПК"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <Spinner
+                android:id="@+id/spinnerYpk"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"/>
+
+            <!-- Product Name -->
+            <TextView
+                android:id="@+id/textViewProductNameLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Название продукта"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/textViewProductName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:minHeight="48dp"
-                android:text="📦 Товар"
-                android:textColor="@android:color/holo_blue_dark"
-                android:textSize="16sp"
-                android:gravity="center_vertical"/>
+                android:background="@android:color/darker_gray"
+                android:padding="8dp"
+                android:text="название продукта"
+                android:textColor="#263238"
+                android:textSize="14sp"
+                android:visibility="visible" />
 
-            <!-- Цена -->
             <EditText
+                android:id="@+id/editTextProductName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="text"
+                android:minHeight="48dp"
+                android:hint="Введите название"
+                android:visibility="gone"
+                android:layout_marginBottom="16dp"
+                />
+
+            <!-- Product Cost -->
+            <TextView
+                android:id="@+id/textViewCostLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Цена"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
                 android:id="@+id/textViewCost"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:hint="0 ₽"
-                android:textColor="@android:color/holo_green_dark"
-                android:textSize="28sp"
-                android:textStyle="bold"
+                android:layout_marginBottom="8dp"
+                android:background="@android:color/darker_gray"
+                android:padding="8dp"
+                android:text="цена"
+                android:textColor="#263238"
+                android:textSize="14sp"
+                android:visibility="visible" />
+
+            <EditText
+                android:id="@+id/editTextCost"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
                 android:inputType="numberDecimal"
-                android:focusable="false"
-                android:clickable="false"
-                android:cursorVisible="false"/>
+                android:minHeight="48dp"
+                android:hint="Введите цену"
+                android:visibility="gone"
+                android:layout_marginBottom="16dp" />
 
-            <!-- Рейтинг -->
+            <!-- Product Info -->
             <TextView
-                android:id="@+id/textViewRating"
+                android:id="@+id/textViewProductInfoLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:text="⭐ 0 / 5"
-                android:textSize="18sp"/>
+                android:text="Описание"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
 
-            <!-- Описание -->
             <TextView
+                android:id="@+id/textViewProductInfo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:minHeight="48dp"
-                android:text="Описание:"
-                android:textSize="16sp"
-                android:textStyle="bold"/>
+                android:background="@android:color/darker_gray"
+                android:padding="8dp"
+                android:text="описание"
+                android:textColor="#263238"
+                android:textSize="14sp"
+                android:visibility="visible" />
 
             <EditText
-                android:id="@+id/textViewInfo"
+                android:id="@+id/editTextInfo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:hint="Нет описания"
-                android:lineSpacingExtra="4dp"
-                android:minHeight="48dp"
-                android:textSize="16sp"
+                android:ems="10"
                 android:inputType="textMultiLine"
-                android:focusable="false"
-                android:clickable="false"
-                android:cursorVisible="false"/>
+                android:minHeight="48dp"
+                android:hint="Введите описание"
+                android:visibility="gone"
+                android:layout_marginBottom="16dp" />
 
-            <!-- Адрес -->
+            <!-- Product Type (IsProduct) -->
             <TextView
+                android:id="@+id/textViewProductOrServiceLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Тип"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/textViewProductOrService"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:text="Адрес:"
+                android:background="@android:color/darker_gray"
+                android:padding="8dp"
+                android:text="тип"
+                android:textColor="#263238"
+                android:textSize="14sp"
+                android:visibility="visible" />
+
+            <CheckBox
+                android:id="@+id/checkBoxIsProduct"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Это товар (не услуга)"
+                android:visibility="gone"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Address -->
+            <TextView
+                android:id="@+id/textViewAddressLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Адрес"
                 android:textSize="16sp"
-                android:textStyle="bold"/>
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/textViewAdress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:background="@android:color/darker_gray"
+                android:padding="8dp"
+                android:text="адрес"
+                android:textColor="#263238"
+                android:textSize="14sp"
+                android:visibility="visible" />
 
             <EditText
-                android:id="@+id/textViewAddress"
+                android:id="@+id/editTextAdress"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:hint="Адрес не указан"
-                android:minHeight="48dp"
-                android:textSize="16sp"
+                android:ems="10"
                 android:inputType="text"
-                android:focusable="false"
-                android:clickable="false"
-                android:cursorVisible="false"/>
+                android:minHeight="48dp"
+                android:hint="Введите адрес"
+                android:visibility="gone"
+                android:layout_marginBottom="16dp" />
 
-
-            <LinearLayout
-                android:id="@+id/layoutStatusChange"
+            <!-- Status Product -->
+            <TextView
+                android:id="@+id/textViewStatusLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="16dp"
-                android:visibility="gone">
+                android:text="Статус"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Статус:"
-                    android:textSize="16sp"
-                    android:gravity="center_vertical"
-                    android:layout_gravity="center_vertical"/>
+            <Spinner
+                android:id="@+id/spinnerStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"/>
 
-                <Spinner
-                    android:id="@+id/spinnerStatus"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:minHeight="48dp"/>
+            <!-- Photo -->
+            <TextView
+                android:id="@+id/textViewPhotoLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Фото"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
 
-                <Button
-                    android:id="@+id/buttonChangeStatus"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="✓"
-                    android:layout_marginStart="8dp"/>
-            </LinearLayout>
+            <ImageView
+                android:id="@+id/imageViewPhoto"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:scaleType="centerCrop"
+                android:src="@android:drawable/ic_menu_gallery"
+                android:contentDescription="Фото продукта"
+                android:layout_gravity="center"
+                android:layout_marginBottom="16dp" />
 
-            <!-- Кнопка "Заказать/изменить" -->
+            <!-- Buttons -->
+            <Button
+                android:id="@+id/buttonEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Изменить"
+                android:layout_marginBottom="8dp"
+                android:visibility="gone"/>
+
+            <Button
+                android:id="@+id/buttonSave"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Сохранить"
+                android:visibility="gone"
+                android:layout_marginBottom="8dp" />
+
             <Button
                 android:id="@+id/buttonOrder"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="56dp"
-                android:text="🛒 Заказать"
-                android:textSize="18sp"/>
+                android:text="Заказать"
+                android:layout_marginBottom="8dp" />
 
-
-
-
-            <!-- Кнопка "Отменить" -->
             <Button
-                android:id="@+id/buttonStopChanges"
+                android:id="@+id/buttonDelete"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="❌ Отменить"
-                android:visibility="gone"
-                android:layout_marginTop="8dp"/>
+                android:text="удалить"
+                android:visibility="gone"/>
+
+            <Button
+                android:id="@+id/buttonBack"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Назад" />
 
         </LinearLayout>
     </ScrollView>
