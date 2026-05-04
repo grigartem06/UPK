@@ -87,8 +87,7 @@ class MainActivity : AppCompatActivity() {
 
             result.onSuccess { response ->
                 Toast.makeText(
-                    this@MainActivity,
-                    "✅ ${response.name ?: "Регистрация успешна!"}",
+                    this@MainActivity, "Регистрация успешна!",
                     Toast.LENGTH_LONG
                 ).show()
 

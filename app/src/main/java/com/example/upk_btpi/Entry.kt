@@ -5,17 +5,13 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.upk_btpi.Models.Auth.AuthResponse
+import com.example.upk_btpi.Retrofit.AuthInterceptor  // ← Импортируем
 import com.example.upk_btpi.Retrofit.AuthRepository
 import com.example.upk_btpi.Utils.JwtDecoder
 import com.example.upk_btpi.databinding.ActivityEntryBinding
-import com.example.upk_btpi.databinding.ActivitySmsBinding
-import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.launch
-import kotlin.toString
 
 class Entry : AppCompatActivity() {
 
@@ -28,94 +24,84 @@ class Entry : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.buttonGoToRegistrtion.setOnClickListener {
-            startActivity(Intent(this, MainActivity::class.java))
+            startActivity(Intent(this, MainActivity::class.java)) // ← Исправьте имя активности
             finish()
         }
 
         binding.buttonInput.setOnClickListener {
             val phoneNumber = binding.editTextText2.text.toString().trim()
             val password = binding.editTextTextPassword3.text.toString()
-            if(!phoneNumber.isEmpty() && !password.isEmpty()) {
-                LogIn(phoneNumber, password, binding.switch1.isChecked)
+
+            if (phoneNumber.isEmpty()) {
+                binding.editTextText2.error = "Введите номер телефона"
+                return@setOnClickListener
             }
+            if (password.isEmpty()) {
+                binding.editTextTextPassword3.error = "Введите пароль"
+                return@setOnClickListener
+            }
+
+            LogIn(phoneNumber, password, binding.switch1.isChecked)
         }
     }
 
-    //api запрос
-    private fun  LogIn(phoneNumber: String ,password: String, rememberMe: Boolean) {
+    private fun LogIn(phoneNumber: String, password: String, rememberMe: Boolean) {
         binding.buttonInput.isEnabled = false
-        binding.buttonInput.text = "вход в аккаунт"
+        binding.buttonInput.text = "Вход..."
 
         lifecycleScope.launch {
             val result = authRepository.login(phoneNumber, password)
+
             result.onSuccess { response ->
-                val token = response.token ?: ""
-                if (token.isNotEmpty()) {
-                    saveUserData(token, phoneNumber, password, response, rememberMe)
+                // ✅ Проверяем наличие ОБЕИХ токенов
+                val accessToken = response.accessToken
+                val refreshToken = response.refreshToken
 
+                if (!accessToken.isNullOrEmpty() && !refreshToken.isNullOrEmpty()) {
+                    // ✅ Сохраняем токены через AuthInterceptor
+                    AuthInterceptor.saveTokens(accessToken, refreshToken)
 
-                    //  Переход на главную страницу
+                    // ✅ Сохраняем пользовательские данные (не токены!)
+                    saveUserData(response, phoneNumber, rememberMe)
+
+                    // Переход на главную
                     val intent = Intent(this@Entry, MainPage::class.java)
                     startActivity(intent)
                     finish()
-                } else { Toast.makeText(this@Entry, "⚠️ Токен не получен", Toast.LENGTH_SHORT).show() }
-            }
-                result.onFailure { error ->
-                    val errorMessage = error.message ?: "Неизвестная ошибка"
-                    // Показываем ошибку в поле телефона
-                    binding.editTextText2.error = errorMessage
-                    binding.editTextText2.requestFocus()
-                    Toast.makeText(this@Entry, "❌ $errorMessage",
-                        Toast.LENGTH_LONG).show()
+                } else {
+                    Toast.makeText(this@Entry, "⚠️ Токены не получены", Toast.LENGTH_SHORT).show()
                     binding.buttonInput.isEnabled = true
                     binding.buttonInput.text = "Войти"
                 }
-        }
+            }
 
+            result.onFailure { error ->
+                val errorMessage = error.message ?: "Неизвестная ошибка"
+                Toast.makeText(this@Entry, "❌ $errorMessage", Toast.LENGTH_LONG).show()
+                binding.buttonInput.isEnabled = true
+                binding.buttonInput.text = "Войти"
+            }
+        }
     }
 
-    private  fun saveUserData(token: String, phoneNumber: String,password: String, response: AuthResponse, rememberMe: Boolean) {
+    private fun saveUserData(response: AuthResponse, phoneNumber: String, rememberMe: Boolean) {
         val prefs = getSharedPreferences("auth_prefs", MODE_PRIVATE)
-        val claims = JwtDecoder.decode(token)
+
+        // Декодируем access token для получения данных пользователя
+        val claims = JwtDecoder.decode(response.accessToken)
 
         prefs.edit().apply {
-            putString("auth_token", token)
             putString("user_id", claims["nameid"]?.toString() ?: "")
-            putString("user_name", claims["unique_name"]?.toString() ?: response.fullName ?: "Не указано")
-            putString("user_phone", phoneNumber)
-            putString("user_role", claims["role"]?.toString() ?: "Пользователь")
+            putString("user_name", claims["unique_name"]?.toString() ?: "Пользователь")  // ✅ Убрали response.fullName
+            putString("user_phone", claims["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/mobilephone"]?.toString() ?: phoneNumber)
+            putString("user_role", claims["role"]?.toString() ?: "DefaultUser")
 
-            // Пароль ТОЛЬКО если "Запомнить меня"
             if (rememberMe) {
-                putString("user_password", password)
-                putBoolean("save", true)
+                putBoolean("remember_me", true)
             } else {
-                remove("user_password")  // ✅ Удаляем старый пароль
-                putBoolean("save", false)
+                putBoolean("remember_me", false)
             }
             apply()
         }
-
-
-        // Декодируем токен и сохраняем данные
-//        if (token.isNotEmpty()) {
-//
-//            prefs.edit().apply {
-//                putString("user_id", claims["nameid"]?.toString() ?: "")
-//                putString("user_name", claims["unique_name"]?.toString() ?: response.fullName ?: "Не указано")
-//                putString("user_phone", phoneNumber)
-//                putString("user_role", claims["role"]?.toString() ?: "Пользователь")
-//                putString("user_password", binding.editTextTextPassword3.text.toString().trim())
-//
-//                if(binding.switch1.isChecked == true)
-//                {
-//                    prefs.edit().apply{putBoolean("save", true)}
-//                }
-//                else{   prefs.edit().apply{putBoolean("save", false)    }}
-//
-//                apply()
-//            }
-//        }
     }
-
 }

@@ -1,47 +1,81 @@
 package com.example.upk_btpi.Retrofit
 
+
 import android.content.Context
-import androidx.annotation.DisplayContext
+import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.create
 import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
+
     private const val BASE_URL = "http://btpit-ypk-api.somee.com/"
 
-    val apiService: ApiService by lazy {
+    private lateinit var authInterceptor: AuthInterceptor
+    private lateinit var refreshInterceptor: RefreshInterceptor
 
-        // Логгер для отладки запросов/ответов
+    lateinit var apiService: ApiService
+        private set
+
+    private var isInitialized = false
+
+    fun init(context: Context) {
+        if (isInitialized) return
+
+        // 1️⃣ Инициализируем AuthInterceptor с контекстом
+        authInterceptor = AuthInterceptor(context)
+
+        // 2️⃣ Создаём отдельный Retrofit для внутренних запросов
+        val internalRetrofit = Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        // 3️⃣ Создаём RefreshInterceptor с retrofit и authInterceptor
+        refreshInterceptor = RefreshInterceptor(internalRetrofit, authInterceptor)
+
+        // 4️⃣ Логгер
         val loggingInterceptor = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
 
-        // Интерцептор для добавления токена авторизации
-        val authInterceptor = AuthInterceptor()
-
-        // Создаём OkHttpClient с интерцепторами
-        val client = OkHttpClient.Builder()
-            .addInterceptor(loggingInterceptor)      // Логи запросов
-            .addInterceptor(authInterceptor)         // Токен авторизации
-            .connectTimeout(30, TimeUnit.SECONDS)    // Таймаут подключения
-            .readTimeout(30, TimeUnit.SECONDS)       // Таймаут чтения
-            .writeTimeout(30, TimeUnit.SECONDS)      // Таймаут записи
+        // 5️⃣ OkHttpClient
+        val okHttpClient = OkHttpClient.Builder()
+            .addInterceptor(authInterceptor)
+            .addInterceptor(refreshInterceptor)
+            .addInterceptor(loggingInterceptor)
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS)
             .build()
 
-        // Создаём Retrofit
-        Retrofit.Builder()
+        val gson = GsonBuilder()
+            .setLenient()
+            .serializeNulls()
+            .create()
+
+        val retrofit = Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .client(client)
-            .addConverterFactory(GsonConverterFactory.create())  // Парсинг JSON
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
-            .create(ApiService::class.java)
+
+        apiService = retrofit.create(ApiService::class.java)
+        isInitialized = true
     }
 
+    fun getInstance(): ApiService {
+        if (!::apiService.isInitialized) {
+            throw IllegalStateException("RetrofitClient не инициализирован!")
+        }
+        return apiService
+    }
 
-
-
-
+    fun logout() {
+        if (::authInterceptor.isInitialized) {
+            authInterceptor.clearTokens()
+        }
+    }
 }

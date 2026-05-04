@@ -5,35 +5,67 @@ import android.content.SharedPreferences
 import okhttp3.Interceptor
 import okhttp3.Response
 
-class AuthInterceptor() : Interceptor {
+class AuthInterceptor(private val context: Context) : Interceptor {
+
+    companion object {
+        private const val PREF_NAME = "auth_prefs"
+        private const val KEY_ACCESS_TOKEN = "access_token"
+        private const val KEY_REFRESH_TOKEN = "refresh_token"
+
+        // ✅ Статическая переменная для доступа из любого места
+        private var prefs: SharedPreferences? = null
+
+        // ✅ Инициализация (вызвать в Application)
+        fun init(context: Context) {
+            prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        }
+
+        // ✅ Статические методы для работы с токенами
+        fun saveTokens(accessToken: String, refreshToken: String) {
+            prefs?.edit()?.apply {
+                putString(KEY_ACCESS_TOKEN, accessToken)
+                putString(KEY_REFRESH_TOKEN, refreshToken)
+                apply()
+            }
+        }
+
+    }
+
+
+    fun saveTokens(accessToken: String, refreshToken: String) {
+        prefs?.edit()?.apply {
+            putString(KEY_ACCESS_TOKEN, accessToken)
+            putString(KEY_REFRESH_TOKEN, refreshToken)
+            apply()
+        }
+    }
+
+
+    fun getAccessToken(): String? = prefs?.getString(KEY_ACCESS_TOKEN, null)
+
+    fun getRefreshToken(): String? = prefs?.getString(KEY_REFRESH_TOKEN, null)
+
+     fun clearTokens() { prefs?.edit()?.clear()?.apply() }
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest = chain.request()
 
-        // Получаем токен из SharedPreferences
-        // Используем контекст приложения через OkHttpClient
-        val token = getToken()
+        // Пропускаем эндпоинты аутентификации
+        val path = originalRequest.url.encodedPath
+        if (path.contains("/api/Auth/login") ||
+            path.contains("/api/Auth/register") ||
+            path.contains("/api/Auth/refresh")) {
+            return chain.proceed(originalRequest)
+        }
 
-        val newRequest = if (!token.isNullOrEmpty()) {
+        // Добавляем access token в заголовок
+        val token = getAccessToken()
+        val requestWithAuth = if (!token.isNullOrEmpty()) {
             originalRequest.newBuilder()
                 .addHeader("Authorization", "Bearer $token")
                 .build()
-        } else {
-            originalRequest
-        }
+        } else { originalRequest }
 
-        return chain.proceed(newRequest)
-    }
-
-    companion object {
-        private var prefs: SharedPreferences? = null
-
-        fun init(context: Context) {
-            prefs = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
-        }
-
-        private fun getToken(): String? {
-            return prefs?.getString("auth_token", null)
-        }
+        return chain.proceed(requestWithAuth)
     }
 }

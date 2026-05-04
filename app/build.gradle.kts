@@ -81,10 +81,10 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0") // Для парсинга JSON
 
-    // OkHttp для логгирования (удобно при отладке)
+    // OkHttp для логгирования
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
-    // Coroutines (обычно уже есть в проекте)
+    // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
 
     // ✅ CardView
@@ -100,6 +100,8 @@ dependencies {
 
     implementation("com.github.bumptech.glide:glide:4.16.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
+
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
 
 }

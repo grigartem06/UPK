@@ -25,6 +25,7 @@ class MainFragment : Fragment() {
     private val binding get() = _binding!!
     private val authRepository = AuthRepository()
     private var productAdapter: ProductAdapter? = null
+    private var searchQuery: String = ""
     private var allProducts : List<ProductDto> = emptyList()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -35,9 +36,7 @@ class MainFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         // Простая проверка: фрагмент добавлен и binding существует
-        if (isAdded && _binding != null) {
-            loadProducts()
-        }
+        if (isAdded && _binding != null) { loadProducts() }
     }
 
 
@@ -54,28 +53,76 @@ class MainFragment : Fragment() {
         binding.buttonCheckAll.setOnClickListener {filterProducts(FilterType.ALL) }
         binding.buttonCheckOrders.setOnClickListener {filterProducts(FilterType.PRODUCTS) }
         binding.buttonCheckServices.setOnClickListener {filterProducts(FilterType.SERVICES) }
+
         binding.buttonSearch.setOnClickListener {
-            val query = binding.editTextText3.text.toString()
-            Toast.makeText(requireContext(), "Поиск: $query", Toast.LENGTH_SHORT).show()
+            val query = binding.editTextText3.text.toString().trim()
+
+            if (query.isEmpty()) {
+                // Если запрос пустой — сбрасываем поиск
+                searchQuery = ""
+            } else {
+                // Сохраняем запрос и применяем фильтрацию
+                searchQuery = query
+                Toast.makeText(requireContext(), "🔍 Поиск: \"$query\"", Toast.LENGTH_SHORT).show()
+            }
+            // Перефильтровываем список с учётом нового запроса
+            // Определяем текущий тип фильтра (можно сохранить в переменной)
+            val currentFilter = getCurrentFilterType() // см. ниже
+            filterProducts(currentFilter)
         }
         binding.checkBox.setOnClickListener {loadProducts()  }
         binding.floatingActionButton.setOnClickListener { addNewProduct() }
+
+        binding.swipeRefreshLayout.setOnRefreshListener { refresh() }
     }
 
+    private var currentFilterType: FilterType = FilterType.ALL
+
+    private fun getCurrentFilterType(): FilterType = currentFilterType
+
+    private fun refresh() {
+        binding.swipeRefreshLayout.isRefreshing = true
+        // Перезагружаем данные
+        loadProducts()
+        // Останавливаем анимацию после загрузки
+        // Важно: делаем это в конце loadProducts() или здесь с задержкой
+        binding.swipeRefreshLayout.isRefreshing = false
+    }
     private enum class FilterType { ALL, PRODUCTS, SERVICES }
+//    private fun filterProducts(type: FilterType) {
+//        val filteredList = when (type) {
+//            FilterType.ALL -> allProducts
+//            FilterType.PRODUCTS -> allProducts.filter { it.isProduct == true }
+//            FilterType.SERVICES -> allProducts.filter { it.isProduct == false }
+//        }
+//
+//        if (filteredList.isEmpty()) { Toast.makeText(requireContext(), "📭 Список пуст", Toast.LENGTH_SHORT).show() }
+//
+//        productAdapter = ProductAdapter(filteredList) { product -> onProductClick(product) }
+//        binding.recyclerViewProducts.adapter = productAdapter
+//    }
+
     private fun filterProducts(type: FilterType) {
-        val filteredList = when (type) {
+        // 1️⃣ Сначала фильтруем по типу (товар/услуга)
+        val filteredByType = when (type) {
             FilterType.ALL -> allProducts
-            FilterType.PRODUCTS -> allProducts.filter { it.isProduct == true }
-            FilterType.SERVICES -> allProducts.filter { it.isProduct == false }
+            FilterType.PRODUCTS -> allProducts.filter { it.isProduct }
+            FilterType.SERVICES -> allProducts.filter { !it.isProduct }
         }
 
-        if (filteredList.isEmpty()) { Toast.makeText(requireContext(), "📭 Список пуст", Toast.LENGTH_SHORT).show() }
+        // 2️⃣ Затем фильтруем по поисковому запросу (если он есть)
+        val finalList = if (searchQuery.isNotEmpty()) {
+            filteredByType.filter { product ->
+                product.productName?.contains(searchQuery, ignoreCase = true) == true || product.productInfo?.contains(searchQuery, ignoreCase = true) == true } }
+            else { filteredByType }
 
-        productAdapter = ProductAdapter(filteredList) { product -> onProductClick(product) }
+        // 3️⃣ Отображаем результат
+        if (finalList.isEmpty()) { Toast.makeText(requireContext(), "📭 Ничего не найдено", Toast.LENGTH_SHORT).show() }
+
+        // 4️⃣ Обновляем адаптер
+        productAdapter = ProductAdapter(finalList) { product -> onProductClick(product) }
         binding.recyclerViewProducts.adapter = productAdapter
     }
-
 
 
     private fun  loadProducts(){

@@ -41,6 +41,7 @@ class FeedbackFragment : Fragment() {
         loadFeedbacks()
 
         binding.floatingActionButton.setOnClickListener { AddNewFeedback() }
+        binding.swipeRefreshLayout.setOnRefreshListener { refresh() }
     }
 
     fun loadFeedbacks() {
@@ -83,6 +84,15 @@ class FeedbackFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun refresh() {
+        binding.swipeRefreshLayout.isRefreshing = true
+        // Перезагружаем данные
+        loadFeedbacks()
+        // Останавливаем анимацию после загрузки
+        // Важно: делаем это в конце loadProducts() или здесь с задержкой
+        binding.swipeRefreshLayout.isRefreshing = false
     }
 }
 

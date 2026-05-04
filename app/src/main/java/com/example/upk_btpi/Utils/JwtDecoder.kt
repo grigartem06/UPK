@@ -21,29 +21,21 @@ object JwtDecoder {
             val json  = JSONObject(decoded)
 
             json.keys().asSequence().associateWith{
-                key -> when(
-                    val value = json.get(key)
-                ) {
+                key -> when(val value = json.get(key))
+                {
                     is org.json.JSONObject->value.toString()
                     is org.json.JSONArray -> value.toString()
                 else -> value
                 }
             }
 
-        }catch (e: Exception) {
-            emptyMap()
-        }
+        }catch (e: Exception) { emptyMap() }
     }
 
     //конкретное поле
-    fun getClaim(token: String , claimName: String) : String?{
-        return decode(token)[claimName]?.toString()
-    }
+    fun getClaim(token: String , claimName: String) : String?{ return decode(token)[claimName]?.toString() }
 
-    // ✅ Специальный метод для mobilephone (длинное имя)
-    fun getPhoneFromToken(token: String): String? {
-        return getClaim(token, "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/mobilephone")
-    }
+    fun getPhoneFromToken(token: String): String? { return getClaim(token, "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/mobilephone") }
 
     fun isExpired(token: String): Boolean {
         return try {

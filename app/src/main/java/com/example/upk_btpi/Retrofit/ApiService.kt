@@ -2,6 +2,7 @@ package com.example.upk_btpi.Retrofit
 
 import android.media.Image
 import com.example.upk_btpi.Models.Auth.AuthResponse
+import com.example.upk_btpi.Models.Auth.RefreshTokenRequest
 import com.example.upk_btpi.Models.Feedback.FeedbackDto
 import com.example.upk_btpi.Models.Feedback.FeedbackResponse
 import com.example.upk_btpi.Models.Feedback.NewFeedbackDto
@@ -51,6 +52,12 @@ interface ApiService {
     suspend fun register(@Body request: RegistrationDto): Response<AuthResponse>
     @POST("api/Auth/login")
     suspend fun login(@Body request: LoginDto): Response<AuthResponse>
+
+    // Обновление токена
+    @POST("api/Auth/refresh")
+    suspend fun refreshAccessToken(@Body request: RefreshTokenRequest): Response<AuthResponse>
+
+
 
     //FeedBack
     @GET("api/Feedback/All")
