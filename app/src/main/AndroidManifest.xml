@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
     <application
         android:name=".Utils.App"
@@ -27,9 +29,7 @@
         <activity
             android:name=".order_detail_Activity"
             android:exported="false" />
-        <activity
-            android:name=".content_about_order"
-            android:exported="false" />
+
         <activity
             android:name=".NewOrderActivity"
             android:exported="false" />

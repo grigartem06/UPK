@@ -19,14 +19,13 @@ class ProductViewHolder(private val binding: ItemProductBinding)
         binding.textViewName.text = product.productName ?: "Без названия"
         binding.textViewCost.text = "${product.productCost} ₽"
         binding.textViewInfo.text = product.productInfo ?: "Нет описания"
-        binding.textViewRaitind.text = "⭐ ${product.ypkId}"
+        binding.textViewRaitind.text = product.ypkId
 
         // Загрузка изображения
-        if (!product.photoPath.isNullOrEmpty()) {
-            binding.imageViewProduct.visibility = android.view.View.VISIBLE
-        } else {
-            binding.imageViewProduct.visibility = android.view.View.GONE
-        }
+        if (!product.photoPath.isNullOrEmpty())
+        { binding.imageViewProduct.visibility = android.view.View.VISIBLE }
+        else { binding.imageViewProduct.visibility = android.view.View.GONE }
+
         binding.root.setOnClickListener { onClick(product) }
         }
     }

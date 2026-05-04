@@ -23,7 +23,7 @@
             android:ems="10"
             android:inputType="text"
             android:minHeight="48dp"
-            android:text="79507531606" />
+            android:hint="номер телефона" />
 
         <EditText
             android:id="@+id/editTextTextPassword3"
@@ -32,7 +32,7 @@
             android:ems="10"
             android:inputType="textPassword"
             android:minHeight="48dp"
-            android:text="passwordUser1"
+            android:hint="пароль"
             />
 
         <Switch

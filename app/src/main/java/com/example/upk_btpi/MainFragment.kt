@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -26,13 +27,17 @@ class MainFragment : Fragment() {
     private var productAdapter: ProductAdapter? = null
     private var allProducts : List<ProductDto> = emptyList()
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentMainBinding.inflate(inflater,container, false)
         return binding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Простая проверка: фрагмент добавлен и binding существует
+        if (isAdded && _binding != null) {
+            loadProducts()
+        }
     }
 
 
@@ -65,19 +70,13 @@ class MainFragment : Fragment() {
             FilterType.SERVICES -> allProducts.filter { it.isProduct == false }
         }
 
-        if (filteredList.isEmpty()) {
-            Toast.makeText(requireContext(), "📭 Список пуст", Toast.LENGTH_SHORT).show()
-        }
+        if (filteredList.isEmpty()) { Toast.makeText(requireContext(), "📭 Список пуст", Toast.LENGTH_SHORT).show() }
 
-        if (productAdapter == null) {
-            productAdapter = ProductAdapter(filteredList) { product ->
-                onProductClick(product)
-            }
-            binding.recyclerViewProducts.adapter = productAdapter
-        } else {
-            productAdapter?.updateProducts(filteredList)
-        }
+        productAdapter = ProductAdapter(filteredList) { product -> onProductClick(product) }
+        binding.recyclerViewProducts.adapter = productAdapter
     }
+
+
 
     private fun  loadProducts(){
         val authPrefs =requireContext().getSharedPreferences("auth_prefs", MODE_PRIVATE)
@@ -95,18 +94,16 @@ class MainFragment : Fragment() {
             else {
                 if (binding.checkBox.isChecked) {
                     val result = authRepository.getAllEdetingProducts()
-                    result.onSuccess { response ->
-                        allProducts = response.products
-                        filterProducts(FilterType.ALL)
-                    }
+                    result.onSuccess { response -> allProducts = response.products
+                        filterProducts(FilterType.ALL) }
+
                     result.onFailure { error-> Toast.makeText(requireContext(), error.message, Toast.LENGTH_LONG).show() }
                 }
                 else {
                     val result = authRepository.getAllProducts()
-                    result.onSuccess { response ->
-                        allProducts = response.products
-                        filterProducts(FilterType.ALL)
-                    }
+                    result.onSuccess { response -> allProducts = response.products
+                        filterProducts(FilterType.ALL) }
+
                     result.onFailure { error-> Toast.makeText(requireContext(), error.message, Toast.LENGTH_LONG).show() }
                 }
             }

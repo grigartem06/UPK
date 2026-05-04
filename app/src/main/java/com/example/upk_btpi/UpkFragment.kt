@@ -56,9 +56,7 @@ class UpkFragment : Fragment() {
                     }
                 }
             }
-
-            result.onFailure { super.onDestroyView()
-                _binding = null }
+            result.onFailure { super.onDestroyView(); _binding = null }
         }
     }
 

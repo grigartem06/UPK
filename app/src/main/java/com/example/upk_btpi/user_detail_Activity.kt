@@ -55,9 +55,6 @@ class user_detail_Activity : AppCompatActivity() {
         binding.buttonSave.setOnClickListener { save()}
         binding.buttonDelete.setOnClickListener { delete() }
 
-
-
-
     }
 
     private fun getInfAboutUser(userId: String) {
