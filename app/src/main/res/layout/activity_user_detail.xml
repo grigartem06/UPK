@@ -57,6 +57,14 @@
                     android:orientation="vertical">
 
                     <!-- 👤 Имя -->
+                    <ImageView
+                        android:id="@+id/imageView3"
+                        android:layout_width="200dp"
+                        android:layout_height="200dp"
+                        android:src="@drawable/user"
+                        android:layout_margin="10sp"
+                         />
+
                     <TextView
                         android:id="@+id/textViewNameLabel"
                         android:layout_width="match_parent"

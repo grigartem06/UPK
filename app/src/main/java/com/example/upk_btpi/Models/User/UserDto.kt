@@ -17,8 +17,13 @@ data class UserDto(
     var userInfo: String? = null,
     @SerializedName("isActive")
     var isActive: Boolean,
+    @SerializedName("avatarPath")
+    var avatarPath: String?=null,
+    @SerializedName("avatarUrl")
+    var avatarUrl: String? = null,
     @SerializedName("role")
     var role: RoleDto,
     @SerializedName("ypk")
     var ypk: YpksDto
+
 )

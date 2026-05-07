@@ -1,6 +1,7 @@
 package com.example.upk_btpi
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import androidx.fragment.app.Fragment
@@ -8,10 +9,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.saveable.autoSaver
+import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import com.example.upk_btpi.Adapters.UserAdapter
 import com.example.upk_btpi.Models.User.UpdateUserDto
 import com.example.upk_btpi.Models.User.UserDto
@@ -19,7 +23,12 @@ import com.example.upk_btpi.Retrofit.AuthRepository
 import com.example.upk_btpi.Retrofit.RetrofitClient
 import com.example.upk_btpi.databinding.FragmentProfileBinding
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
+import java.io.File
 import kotlin.io.path.Path
 import kotlin.uuid.ExperimentalUuidApi
 
@@ -32,6 +41,15 @@ class ProfileFragment : Fragment() {
     var nowUserID: String ?= null
     var role: String ?= null
     var token: String ?= null
+    // Переменная для хранения URI выбранного изображения
+    private var selectedImageUri: Uri? = null
+    private val imagePickerLauncher = registerForActivityResult(ActivityResultContracts.GetContent())
+    { uri: Uri? ->
+        uri?.let {
+            selectedImageUri = it
+            binding.imageView4.setImageURI(it)
+        }
+    }
 
 
 
@@ -82,43 +100,96 @@ class ProfileFragment : Fragment() {
 
          //кнопка редактирования
          binding.buttonEdit.setOnClickListener {
-             if(isEditMode ) //отключаем редактирование
-             {
+             if (isEditMode) { // Сохранение изменений
                  isEditMode = false
-                 binding.buttonEdit.text = "изменить"
-                 binding.buttonLogOut.text = "выйти"
+                 binding.buttonEdit.text = "Изменить"
+                 binding.buttonLogOut.text = "Выйти"
+                 binding.imageView4.setOnClickListener(null)
+
                  val prefs = requireContext().getSharedPreferences("auth_prefs", 0)
                  val roleName = prefs.getString("user_role", null)
 
                  lifecycleScope.launch {
-                     val rolesResponse = RetrofitClient.apiService.getAllRoles()
-                     if(!rolesResponse.isSuccessful || rolesResponse.body() == null) {
-                     }
-                     val roles = rolesResponse.body()!!.roles
-                     val role = roles.find {
-                         it.roleName?.equals(roleName, ignoreCase = true) == true
-                     }
-                     val roleid = role?.id
+                     try {
+                         // ✅ Получаем roleId
+                         val rolesResponse = RetrofitClient.apiService.getAllRoles()
+                         if (!rolesResponse.isSuccessful || rolesResponse.body() == null) {
+                             Toast.makeText(requireContext(), "❌ Ошибка загрузки ролей", Toast.LENGTH_SHORT).show()
+                             return@launch
+                         }
+                         val roles = rolesResponse.body()!!.roles
+                         val role = roles.find { it.roleName?.equals(roleName, ignoreCase = true) == true }
+                         val roleId = role?.id ?: ""
 
-                     //сохранение изменений
-                     val request = UpdateUserDto(
-                         id = oldUser!!.id,
-                         fullname = binding.editTextTextName.text.toString(),
-                         userInfo = binding.editTextTextInf.text.toString(),
-                         phoneNumber = binding.editTextTextPhone.text.toString(),
-                         roleId = roleid.toString(),
-                         isActive = true
-                     )
-                     RetrofitClient.apiService.updateUser(request)
+                         val oldPassword = ""
+                         val newPassword = ""
 
+                         // ✅ Создаем RequestBody для каждого поля
+                         val idBody = oldUser!!.id.toRequestBody("text/plain".toMediaType())
+
+                         val oldPasswordBody = if (oldPassword.isNotEmpty()) { oldPassword.toRequestBody("text/plain".toMediaType()) }
+                         else { null }
+
+                         val newPasswordBody = if (newPassword.isNotEmpty()) { newPassword.toRequestBody("text/plain".toMediaType()) }
+                         else { null }
+
+                         val fullnameBody = binding.editTextTextName.text.toString().toRequestBody("text/plain".toMediaType())
+                         val phoneNumberBody = binding.editTextTextPhone.text.toString().toRequestBody("text/plain".toMediaType())
+                         val userInfoBody = binding.editTextTextInf.text.toString().toRequestBody("text/plain".toMediaType())
+                         val isActiveBody = (oldUser?.isActive ?: true)
+                             .toString()
+                             .toRequestBody("text/plain".toMediaType())
+
+                         val avatarPart = selectedImageUri?.let { uri ->
+                             try {
+                                 val inputStream = requireContext().contentResolver.openInputStream(uri)
+                                 val tempFile = File.createTempFile("avatar_", ".jpg", requireContext().cacheDir)
+                                 tempFile.outputStream().use { output ->
+                                     inputStream?.copyTo(output)
+                                 }
+                                 val requestBody = tempFile.asRequestBody("image/jpeg".toMediaType())
+                                 MultipartBody.Part.createFormData("avatar", tempFile.name, requestBody)
+                             } catch (e: Exception) {
+                                 e.printStackTrace()
+                                 null
+                             }
+                         }
+
+                         // ✅ Вызываем API с multipart-параметрами
+                         val response = RetrofitClient.apiService.updateUser(
+                             id = idBody,
+                             oldPassword = oldPasswordBody,
+                             newPassword = newPasswordBody,
+                             fullname = fullnameBody,
+                             phoneNumber = phoneNumberBody,
+                             userInfo = userInfoBody,
+                             isActive = isActiveBody,
+                             avatar = avatarPart
+                         )
+
+                         if (response.isSuccessful) {
+                             Toast.makeText(requireContext(), "✅ Изменения сохранены", Toast.LENGTH_SHORT).show()
+                             // ✅ Обновляем oldUser
+                             val updatedResponse = RetrofitClient.apiService.getUserByID(oldUser!!.id)
+                             if (updatedResponse.isSuccessful) {
+                                 oldUser = updatedResponse.body()
+                             }
+                         } else {
+                             val error = response.errorBody()?.string() ?: "Неизвестная ошибка"
+                             println("❌ ОШИБКА: ${response.code()} - $error")
+                             Toast.makeText(requireContext(), "❌ Ошибка: $error", Toast.LENGTH_LONG).show()
+                         }
+
+                     } catch (e: Exception) {
+                         e.printStackTrace()
+                         Toast.makeText(requireContext(), "❌ ${e.message}", Toast.LENGTH_SHORT).show()
+                     }
                  }
-             }
-             else // включаем редактирование
-             {
+             } else { // Включение режима редактирования
                  isEditMode = true
-                 binding.buttonEdit.text = "сохранить изменения"
-                 binding.buttonLogOut.text = "отмена"
-
+                 binding.buttonEdit.text = "Сохранить изменения"
+                 binding.buttonLogOut.text = "Отмена"
+                 binding.imageView4.setOnClickListener { selectImage() }
              }
              changeOfAccess(isEditMode)
          }
@@ -149,7 +220,7 @@ class ProfileFragment : Fragment() {
     @OptIn(ExperimentalUuidApi::class)
     fun loadUserProfile() {
         if (nowUserID.isNullOrEmpty()) {
-            Toast.makeText(requireContext(),"⚠️user_id не найден в SharedPreferences", Toast.LENGTH_LONG)
+            Toast.makeText(requireContext(),"⚠️user_id не найден в SharedPreferences", Toast.LENGTH_LONG).show()
             return
         }
         else { loadUserInf() }
@@ -171,6 +242,22 @@ class ProfileFragment : Fragment() {
                      binding.editTextTextName.setText(user.fullname)
                      binding.editTextTextPhone.setText(user.phoneNumber)
                      binding.editTextTextRole.setText(role.toString())
+
+                     if (user.avatarUrl.isNullOrEmpty()) {
+                         // Показываем плейсхолдер
+                         Glide.with(requireContext())
+                             .load(android.R.drawable.ic_menu_gallery)  // или android.R.drawable.ic_menu_gallery
+                             .centerCrop()
+                             .into(binding.imageView4)
+                     } else {
+                         // Загружаем по URL
+                         Glide.with(requireContext())
+                             .load(user.avatarUrl)
+                             .placeholder(android.R.drawable.ic_menu_gallery)
+                             .error(android.R.drawable.stat_notify_error)
+                             .centerCrop()
+                             .into(binding.imageView4)
+                     }
 
                      if (user.userInfo != null) { binding.editTextTextInf.setText(user.userInfo) }
                      oldUser = user
@@ -221,6 +308,8 @@ class ProfileFragment : Fragment() {
         val intent = Intent(requireContext(), user_detail_Activity::class.java)
         startActivity(intent)
     }
+
+    private fun selectImage() { imagePickerLauncher.launch("image/*") }
 
 
 

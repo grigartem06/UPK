@@ -164,10 +164,31 @@ interface ApiService {
     suspend fun deleteUserByID(@Path( "id") userId: String): Response<Unit>
     @POST("api/User")
     suspend fun createUser(@Body request: CreateUserDto) : Response<Unit>
-    @PUT("api/User")
-    suspend fun  updateUser(@Body request: UpdateUserDto) : Response<Unit>
+
+    @Multipart
+    @PUT("/api/user")
+    suspend fun updateUser(
+        @Part("Id") id: RequestBody,
+        @Part("OldPassword") oldPassword: RequestBody?,
+        @Part("NewPassword") newPassword: RequestBody?,
+        @Part("Fullname") fullname: RequestBody,
+        @Part("PhoneNumber") phoneNumber: RequestBody,
+        @Part("UserInfo") userInfo: RequestBody,
+        @Part("IsActive") isActive : RequestBody,
+        @Part avatar: MultipartBody.Part?
+    ): Response<Unit>
+
+    @Multipart
     @PUT("/api/user/admin")
-    suspend fun updateUserForAdmin(@Body request: UpdateUserForAdminDto): Response<Unit>
+    suspend fun updateUserForAdmin(
+        @Part("Id") id: RequestBody,
+        @Part("Fullname") fullname: RequestBody,
+        @Part("PhoneNumber") phoneNumber: RequestBody,
+        @Part("RoleId") roleId: RequestBody,
+        @Part("UserInfo") userInfo: RequestBody,
+        @Part("YpkId") ypkId: RequestBody,
+        @Part avatar: MultipartBody.Part?
+    ): Response<Unit>
 
 
     //Ypk
