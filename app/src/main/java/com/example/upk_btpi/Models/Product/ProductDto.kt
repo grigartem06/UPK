@@ -27,10 +27,9 @@ data class ProductDto(
     @SerializedName("photoUrl")
     val photoUrl: String? = null,
 
-    @SerializedName("adres")
+    @SerializedName("address")
     val adress: String?= null,
 
     @SerializedName("statusProductId")
     val statusProductId: String?=null
-
 )

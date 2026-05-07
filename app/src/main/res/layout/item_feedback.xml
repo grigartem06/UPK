@@ -6,13 +6,20 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_margin="5sp">
 
         <TextView
             android:id="@+id/textViewComment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="comment" />
+
+        <TextView
+            android:id="@+id/textViewRaitind"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="raiting" />
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

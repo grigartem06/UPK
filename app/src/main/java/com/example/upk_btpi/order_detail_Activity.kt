@@ -145,7 +145,7 @@ class order_detail_Activity : AppCompatActivity() {
     }
 
     private fun displayOrder(order: OrderDto){
-        binding.textViewId.text = order.id
+        //binding.textViewId.text = order.id
         binding.textViewExecutorId.text = order.executorId
         binding.textViewCustomerId.text = order.customerId
         binding.textViewDate.text = order.date

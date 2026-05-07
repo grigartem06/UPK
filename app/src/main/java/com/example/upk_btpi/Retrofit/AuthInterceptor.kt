@@ -12,15 +12,13 @@ class AuthInterceptor(private val context: Context) : Interceptor {
         private const val KEY_ACCESS_TOKEN = "access_token"
         private const val KEY_REFRESH_TOKEN = "refresh_token"
 
-        // ✅ Статическая переменная для доступа из любого места
+        // ✅ ЕДИНСТВЕННЫЙ источник prefs
         private var prefs: SharedPreferences? = null
 
         // ✅ Инициализация (вызвать в Application)
-        fun init(context: Context) {
-            prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        }
+        fun init(context: Context) { prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE) }
 
-        // ✅ Статические методы для работы с токенами
+        // ✅ ЕДИНСТВЕННЫЙ метод saveTokens - в companion object
         fun saveTokens(accessToken: String, refreshToken: String) {
             prefs?.edit()?.apply {
                 putString(KEY_ACCESS_TOKEN, accessToken)
@@ -29,23 +27,11 @@ class AuthInterceptor(private val context: Context) : Interceptor {
             }
         }
 
+        fun getAccessToken(): String? = prefs?.getString(KEY_ACCESS_TOKEN, null)
+        fun getRefreshToken(): String? = prefs?.getString(KEY_REFRESH_TOKEN, null)
+        fun clearTokens() { prefs?.edit()?.clear()?.apply() }
     }
 
-
-    fun saveTokens(accessToken: String, refreshToken: String) {
-        prefs?.edit()?.apply {
-            putString(KEY_ACCESS_TOKEN, accessToken)
-            putString(KEY_REFRESH_TOKEN, refreshToken)
-            apply()
-        }
-    }
-
-
-    fun getAccessToken(): String? = prefs?.getString(KEY_ACCESS_TOKEN, null)
-
-    fun getRefreshToken(): String? = prefs?.getString(KEY_REFRESH_TOKEN, null)
-
-     fun clearTokens() { prefs?.edit()?.clear()?.apply() }
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest = chain.request()
@@ -64,7 +50,9 @@ class AuthInterceptor(private val context: Context) : Interceptor {
             originalRequest.newBuilder()
                 .addHeader("Authorization", "Bearer $token")
                 .build()
-        } else { originalRequest }
+        } else {
+            originalRequest
+        }
 
         return chain.proceed(requestWithAuth)
     }

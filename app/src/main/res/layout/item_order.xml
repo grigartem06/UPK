@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layout_margin="10sp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -9,28 +10,28 @@
         android:orientation="vertical"
         android:layout_margin="10sp">
 
+
         <TextView
-            android:id="@+id/textViewId"
+            android:id="@+id/textViewPRoductName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="TextView" />
+            android:text="продукт"
+            android:layout_margin="5sp"/>
 
         <TextView
             android:id="@+id/textViewDate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="TextView" />
+            android:text="дата"
+            android:layout_margin="5sp"/>
 
         <TextView
-            android:id="@+id/textViewCustomersComment"
+            android:id="@+id/textViewStatus"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="" />
+            android:text="статус"
+            android:layout_margin="5sp"/>
 
-        <TextView
-            android:id="@+id/textViewUserComment"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="" />
+
     </LinearLayout>
 </androidx.cardview.widget.CardView>

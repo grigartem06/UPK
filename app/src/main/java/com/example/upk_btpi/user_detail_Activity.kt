@@ -82,6 +82,8 @@ class user_detail_Activity : AppCompatActivity() {
 
             // ✅ ИСПРАВЛЕНО: безопасный доступ к nullable ypk
             binding.textViewYpk.text = user.ypk?.ypkName ?: "Не назначен"
+            if(user.ypk.id == null) {binding.textViewYpk.text= "Не назначен"}
+            else{binding.textViewYpk.text = user.ypk?.ypkName }
 
             // ✅ ИСПРАВЛЕНО: безопасный доступ к nullable role
             binding.textViewRole.text = user.role?.roleName ?: "Не назначена"
@@ -128,21 +130,28 @@ class user_detail_Activity : AppCompatActivity() {
                     Toast.makeText(this@user_detail_Activity, "⚠️ Введите имя", Toast.LENGTH_SHORT).show()
                     return@launch
                 }
-
                 if (phoneNumber.isEmpty()) {
                     Toast.makeText(this@user_detail_Activity, "⚠️ Введите телефон", Toast.LENGTH_SHORT).show()
                     return@launch
                 }
 
-                // ✅ Проверяем, является ли выбранная роль Manager
-                val isManagerRole = selectedRole == "47140546-4f69-41a4-b5ec-8a071db6d66b"
+                // ✅ Проверяем доступ к УПК через имя роли
+                val currentRole = listOfRoles.find { it.id == selectedRole }
+                val roleName = currentRole?.roleName?.lowercase()?.trim()
+                val rolesWithYpkAccess = setOf("менеджер", "manager", "исполнитель", "executor")
+                val hasYpkAccess = roleName in rolesWithYpkAccess
 
-                // ✅ Если роль не Manager, ypkId = null
-                val ypkIdValue = if (isManagerRole) {
-                    selectedYpk ?: oldUser.ypk?.id
-                } else {
-                    null  // Для всех остальных ролей ypkId = null
+                // ✅ ПОЛУЧАЕМ ID УПК ИЗ СПИННЕРА ПРАВИЛЬНО
+                val ypkIdValue = if (hasYpkAccess) {
+                    val selectedPosition = binding.spinnerYpk.selectedItemPosition
+                    if (selectedPosition >= 0 && selectedPosition < listOfYpk.size) {
+                        listOfYpk[selectedPosition].id  // ← Берем ID из списка по позиции
+                    }
+                    else { oldUser.ypk.id }
                 }
+                else { null }
+
+                println("🔍 save(): role='$roleName', hasYpkAccess=$hasYpkAccess, ypkIdValue=$ypkIdValue")
 
                 val request = UpdateUserForAdminDto(
                     id = oldUser.id,
@@ -150,13 +159,18 @@ class user_detail_Activity : AppCompatActivity() {
                     phoneNumber = phoneNumber,
                     roleId = selectedRole ?: oldUser.role?.id ?: "",
                     userInfo = if (userInfo.isEmpty()) oldUser.userInfo else userInfo,
-                    ypkId = ypkIdValue  // ✅ Используем вычисленное значение
+                    ypkId = ypkIdValue
                 )
+
+                println("📤 Отправка: roleId=${request.roleId}, ypkId=${request.ypkId}")
 
                 val response = RetrofitClient.apiService.updateUserForAdmin(request)
 
                 if (response.isSuccessful) {
                     Toast.makeText(this@user_detail_Activity, "✅ Изменения сохранены", Toast.LENGTH_SHORT).show()
+
+                    val updatedResult = authRepository.getUserByID(oldUser.id)
+                    updatedResult.onSuccess { updatedUser -> oldUser = updatedUser }
                 } else {
                     val error = response.errorBody()?.string() ?: "Неизвестная ошибка"
                     println("❌ ОШИБКА: ${response.code()} - $error")
@@ -174,7 +188,6 @@ class user_detail_Activity : AppCompatActivity() {
             EditMode = false
             displayUserInf(oldUser)
 
-            // Возвращаем UI в исходное состояние
             binding.editTextTextName.visibility = View.GONE
             binding.editTextPhone.visibility = View.GONE
             binding.editTextTextInfo.visibility = View.GONE
@@ -191,70 +204,12 @@ class user_detail_Activity : AppCompatActivity() {
             binding.buttonSave.visibility = View.GONE
             binding.buttonBack.text = "← Назад"
         }
+
+
+
+
     }
-//    private fun save() {
-//        lifecycleScope.launch {
-//            try {
-//                // Валидация данных
-//                val fullname = binding.editTextTextName.text.toString().trim()
-//                val phoneNumber = binding.editTextPhone.text.toString().trim()
-//                val userInfo = binding.editTextTextInfo.text.toString().trim()
-//
-//                if (fullname.isEmpty()) {
-//                    Toast.makeText(this@user_detail_Activity, "⚠️ Введите имя", Toast.LENGTH_SHORT).show()
-//                    return@launch
-//                }
-//
-//                if (phoneNumber.isEmpty()) {
-//                    Toast.makeText(this@user_detail_Activity, "⚠️ Введите телефон", Toast.LENGTH_SHORT).show()
-//                    return@launch
-//                }
-//
-//                val request = UpdateUserForAdminDto(
-//                    id = oldUser.id,
-//                    fullname = fullname,
-//                    phoneNumber = phoneNumber,
-//                    roleId = selectedRole?: oldUser?.role?.id?: "",
-//                    userInfo = if (userInfo.isEmpty()) oldUser.userInfo else userInfo,
-//                    ypkId = selectedYpk?: oldUser?.ypk?.id ?: null
-//                )
-//
-//                val response = RetrofitClient.apiService.updateUserForAdmin(request)
-//
-//                if (response.isSuccessful) {
-//                    Toast.makeText(this@user_detail_Activity, "✅ Изменения сохранены", Toast.LENGTH_SHORT).show() }
-//                else {
-//                    val error = response.errorBody()?.string() ?: "Неизвестная ошибка"
-//                    println("❌ ОШИБКА: ${response.code()} - $error")
-//                    Toast.makeText(this@user_detail_Activity, "❌ Ошибка: $error", Toast.LENGTH_LONG).show()
-//                    return@launch
-//                }
-//
-//            } catch (e: Exception) {
-//                println("❌ ИСКЛЮЧЕНИЕ: ${e.message}")
-//                e.printStackTrace()
-//                Toast.makeText(this@user_detail_Activity, "❌ ${e.message}", Toast.LENGTH_SHORT).show()
-//                return@launch
-//            }
-//
-//            // ✅ Только после успешного сохранения:
-//            EditMode = false
-//            displayUserInf(oldUser)  // ✅ Показываем обновлённые данные
-//
-//            // ✅ Возвращаем UI в исходное состояние
-//            binding.editTextTextName.visibility = View.GONE
-//            binding.editTextPhone.visibility = View.GONE
-//            binding.editTextTextInfo.visibility = View.GONE
-//
-//            binding.textViewName.visibility = View.VISIBLE
-//            binding.textViewPhoneNumber.visibility = View.VISIBLE
-//            binding.textViewInfo.visibility = View.VISIBLE
-//
-//            binding.buttonEdit.visibility = View.VISIBLE
-//            binding.buttonSave.visibility = View.GONE
-//            binding.buttonBack.text = "← Назад"
-//        }
-//    }
+
 
     private fun back() {
         if(EditMode){EditMode= false; displayUserInf(oldUser)}
@@ -277,72 +232,69 @@ class user_detail_Activity : AppCompatActivity() {
         }
     }
 
-    private fun setupYpkSpinner(){
-        if(listOfYpk.isEmpty()) return
-        val ypkNames = listOfYpk.map { it.ypkName?:"без названия" }
-        val adapter = ArrayAdapter(this,android.R.layout.simple_spinner_item, ypkNames)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+    private fun setupYpkSpinner() {
+        if (listOfYpk.isEmpty()) {
+            println("⚠️ listOfYpk пуст, пропускаем setupYpkSpinner")
+            return
+        }
 
+        println("🔄 setupYpkSpinner: загружено ${listOfYpk.size} УПК")
+
+        val ypkNames = listOfYpk.map { it.ypkName ?: "без названия" }
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, ypkNames)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.spinnerYpk.adapter = adapter
 
-        //устанавливаем дефолт значение
+        // ✅ Устанавливаем дефолтное значение по ID (не по имени!)
         oldUser?.let { user ->
-            val currentYpkIndex = listOfYpk.indexOfFirst { it.ypkName == user.ypk.ypkName }
-            if (currentYpkIndex >= 0) {
-                binding.spinnerYpk.setSelection(currentYpkIndex)
-                selectedYpk = user.ypk.ypkName
+            val userYpkId = user.ypk?.id
+            println("👤 УПК пользователя: $userYpkId")
+
+            if (userYpkId != null) {
+                val currentYpkIndex = listOfYpk.indexOfFirst { it.id == userYpkId }
+
+                if (currentYpkIndex >= 0) {
+                    binding.spinnerYpk.setSelection(currentYpkIndex)
+                    selectedYpk = listOfYpk[currentYpkIndex].id  // ✅ Сохраняем ID!
+                    println("✅ Установлен УПК: ${listOfYpk[currentYpkIndex].ypkName}")
+                } else {
+                    println("⚠️ УПК $userYpkId не найден в списке")
+                }
+            }
+        }
+
+        // ✅ Обработчик выбора
+        binding.spinnerYpk.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                selectedYpk = listOfYpk[position].id  // ✅ Сохраняем ID при выборе
+                println("🔄 Выбран УПК: ${listOfYpk[position].ypkName} (ID: $selectedYpk)")
             }
 
-            //обработчик выбора
-            binding.spinnerYpk.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
-                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long)
-                { selectedYpk = listOfYpk[position].id }
-                override fun onNothingSelected(parent: AdapterView<*>?) { selectedYpk= null }
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                selectedYpk = null
+                println("⚠️ Ничего не выбрано в spinnerYpk")
             }
         }
     }
-//    private fun setupRoleSpinner(){
-//        if(listOfRoles.isEmpty()) return
-//
-//        val roleName =listOfRoles.map { it.roleName?:"без названия" }
-//        val adapter = ArrayAdapter(this,android.R.layout.simple_spinner_item, roleName)
-//        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-//
-//        binding.spinnerRole.adapter = adapter
-//
-//        //устанавливаем дефолт значение
-//        oldUser?.let { user->
-//            val currentRoleIndex = listOfRoles.indexOfFirst { it.roleName == user.role.roleName }
-//            if(currentRoleIndex>=0) {binding.spinnerRole.setSelection(currentRoleIndex); selectedRole = user.role.roleName}
-//        }
-//
-//        //обработчик выбора
-//        binding.spinnerRole.onItemSelectedListener= object : AdapterView.OnItemSelectedListener{
-//            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long)
-//            { selectedRole = listOfRoles[position].id }
-//
-//            override fun onNothingSelected(parent: AdapterView<*>?) { selectedRole= null }
-//        }
-//    }
 
-    private fun setupRoleSpinner(){
-        if(listOfRoles.isEmpty()) return
 
-        val roleName = listOfRoles.map { it.roleName ?: "без названия" }
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, roleName)
+    private fun setupRoleSpinner() {
+        if (listOfRoles.isEmpty()) return
+
+        val roleNames = listOfRoles.map { it.roleName ?: "без названия" }
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, roleNames)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-
         binding.spinnerRole.adapter = adapter
 
-        // Устанавливаем дефолт значение
+        // Устанавливаем текущую роль
         val currentUserRoleId = oldUser.role?.id
         if (currentUserRoleId != null) {
             val currentRoleIndex = listOfRoles.indexOfFirst { it.id == currentUserRoleId }
             if (currentRoleIndex >= 0) {
                 binding.spinnerRole.setSelection(currentRoleIndex)
-                selectedRole = currentUserRoleId
-                // ✅ Проверяем видимость YPK при загрузке
-                setupYpkVisibility(currentUserRoleId)
+                selectedRole = listOfRoles[currentRoleIndex].id
+                // ✅ Обновляем видимость УПК
+                setupYpkVisibility(selectedRole)
             }
         }
 
@@ -350,30 +302,46 @@ class user_detail_Activity : AppCompatActivity() {
         binding.spinnerRole.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 selectedRole = listOfRoles[position].id
-                // ✅ Обновляем видимость YPK при изменении роли
-                setupYpkVisibility(selectedRole!!)
+                // ✅ Обновляем видимость УПК при смене роли
+                setupYpkVisibility(selectedRole)
             }
-
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 selectedRole = null
+                hideYpkFields()
             }
         }
     }
 
-    private fun setupYpkVisibility(roleId: String) {
-        // ID роли Manager из ваших логов: 47140546-4f69-41a4-b5ec-8a071db6d66b
-        val isManager = roleId == "47140546-4f69-41a4-b5ec-8a071db6d66b"
-
-        if (isManager) {
-            // Показываем спиннер YPK для менеджеров
-            binding.spinnerYpk.visibility = View.VISIBLE
-            binding.textViewYpk?.visibility = View.VISIBLE // если есть label
-        } else {
-            // Скрываем спиннер YPK для других ролей
-            binding.spinnerYpk.visibility = View.GONE
-            binding.textViewYpk?.visibility = View.GONE
-            selectedYpk = null // Сбрасываем выбор
+    private fun setupYpkVisibility(roleId: String?) {
+        if (roleId == null) {
+            hideYpkFields()
+            return
         }
+
+        // Находим роль по ID в загруженном списке
+        val currentRole = listOfRoles.find { it.id == roleId }
+        val roleName = currentRole?.roleName?.lowercase()?.trim()
+
+        // ✅ Проверяем по имени роли (не по ID!)
+        val rolesWithYpkAccess = setOf("менеджер", "manager", "исполнитель", "executor")
+        val hasYpkAccess = roleName in rolesWithYpkAccess
+
+        println("🔍 setupYpkVisibility: role='$roleName', hasAccess=$hasYpkAccess")
+
+        if (hasYpkAccess) { showYpkFields() }
+        else { hideYpkFields() }
+    }
+
+    // Выносим логику отображения в отдельные методы
+    private fun showYpkFields() {
+        binding.spinnerYpk.visibility = View.VISIBLE
+        binding.textViewYpk?.visibility = View.VISIBLE
+    }
+
+    private fun hideYpkFields() {
+        binding.spinnerYpk.visibility = View.GONE
+        binding.textViewYpk?.visibility = View.GONE
+        selectedYpk = null  // Сбрасываем выбор
     }
 
     private fun delete() {

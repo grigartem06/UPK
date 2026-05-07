@@ -53,16 +53,22 @@ class Entry : AppCompatActivity() {
             val result = authRepository.login(phoneNumber, password)
 
             result.onSuccess { response ->
-                // ✅ Проверяем наличие ОБЕИХ токенов
                 val accessToken = response.accessToken
                 val refreshToken = response.refreshToken
 
                 if (!accessToken.isNullOrEmpty() && !refreshToken.isNullOrEmpty()) {
-                    // ✅ Сохраняем токены через AuthInterceptor
+
+                    // ✅ Проверка: читаем сохранённые токены
+                    val savedAccess = AuthInterceptor.getAccessToken()
+                    val savedRefresh = AuthInterceptor.getRefreshToken()
+                    println("💾 Сохранено: access=${savedAccess != null}, refresh=${savedRefresh != null}")
+                    // ✅ Сохраняем токены ТОЛЬКО если "Запомнить меня" включен
+                    //if (rememberMe) { AuthInterceptor.saveTokens(accessToken, refreshToken) }
+
                     AuthInterceptor.saveTokens(accessToken, refreshToken)
 
-                    // ✅ Сохраняем пользовательские данные (не токены!)
-                    saveUserData(response, phoneNumber, rememberMe)
+                    // Сохраняем данные пользователя
+                    saveUserData(response, phoneNumber, password,rememberMe)
 
                     // Переход на главную
                     val intent = Intent(this@Entry, MainPage::class.java)
@@ -77,29 +83,30 @@ class Entry : AppCompatActivity() {
 
             result.onFailure { error ->
                 val errorMessage = error.message ?: "Неизвестная ошибка"
-                Toast.makeText(this@Entry, "❌ $errorMessage", Toast.LENGTH_LONG).show()
+                Toast.makeText(this@Entry, "❌ ошибка входа", Toast.LENGTH_LONG).show()
                 binding.buttonInput.isEnabled = true
                 binding.buttonInput.text = "Войти"
             }
         }
     }
 
-    private fun saveUserData(response: AuthResponse, phoneNumber: String, rememberMe: Boolean) {
+    private fun saveUserData(response: AuthResponse, phoneNumber: String, password: String, rememberMe: Boolean) {
         val prefs = getSharedPreferences("auth_prefs", MODE_PRIVATE)
-
-        // Декодируем access token для получения данных пользователя
-        val claims = JwtDecoder.decode(response.accessToken)
+        val claims = JwtDecoder.decode(response.accessToken!!)
 
         prefs.edit().apply {
             putString("user_id", claims["nameid"]?.toString() ?: "")
-            putString("user_name", claims["unique_name"]?.toString() ?: "Пользователь")  // ✅ Убрали response.fullName
-            putString("user_phone", claims["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/mobilephone"]?.toString() ?: phoneNumber)
+            putString("user_name", claims["unique_name"]?.toString() ?: "Пользователь")
+            putString("user_phone", phoneNumber)
             putString("user_role", claims["role"]?.toString() ?: "DefaultUser")
 
+            // ✅ СОХРАНЯЕМ ПАРОЛЬ ТОЛЬКО ЕСЛИ "ЗАПОМНИТЬ МЕНЯ" ВКЛЮЧЁН
             if (rememberMe) {
                 putBoolean("remember_me", true)
+                putString("user_password", password) // ⚠️ Или храните зашифрованный пароль
             } else {
                 putBoolean("remember_me", false)
+                remove("user_password")
             }
             apply()
         }

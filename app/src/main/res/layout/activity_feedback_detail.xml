@@ -36,15 +36,23 @@
             android:id="@+id/textViewRaitind"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="raiting" />
+            android:text="raiting"
 
-        <EditText
-            android:id="@+id/editTextTextRaitind"
-            android:layout_width="match_parent"
+            />
+
+
+
+        <RatingBar
+            android:id="@+id/ratingBar"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:ems="10"
-            android:inputType="numberSigned"
-            android:visibility="gone"/>
+            android:numStars="5"
+            android:stepSize="1"
+            android:rating="3"
+            android:isIndicator="false"
+            android:visibility="gone"
+            style="?android:attr/ratingBarStyle"
+        />
 
         <TextView
             android:id="@+id/textViewUserName"

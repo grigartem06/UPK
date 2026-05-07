@@ -52,14 +52,15 @@
             android:id="@+id/buttonSave"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="save"
+            android:text="сохранить"
             android:visibility="gone"/>
 
         <Button
             android:id="@+id/buttonEdit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="edit" />
+            android:text="изменить"
+            android:visibility="gone"/>
 
         <Button
             android:id="@+id/buttonDelete"

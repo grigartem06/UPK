@@ -27,16 +27,4 @@ data class OrderDto(
 
     @SerializedName("productDto")
     val  productDto: ProductDto
-
-//    @SerializedName("user")
-//    val user: UserOrderDto? = null,
-//
-//    @SerializedName("feedbacks")
-//    val feedbacks: List<FeedbackDto>? = null,
-//
-//    @SerializedName("product")
-//    val product: ProductOrderDto? = null,
-//
-//    @SerializedName("statusOrder")
-//    val statusOrder: StatusOrderDto? = null
 )

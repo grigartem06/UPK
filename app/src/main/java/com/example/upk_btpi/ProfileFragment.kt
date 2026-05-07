@@ -177,8 +177,7 @@ class ProfileFragment : Fragment() {
 
                  } else {
                      val error = response.errorBody()?.string() ?: "Неизвестная ошибка"
-                     Toast.makeText(requireContext(), "Ошибка: ${error}", Toast.LENGTH_SHORT).show()
-                 }
+                     Toast.makeText(requireContext(), "Ошибка: ${error}", Toast.LENGTH_SHORT).show() }
              } catch (e: Exception) {
                  e.printStackTrace()
                  Toast.makeText(requireContext(), "Ошибка: ${e.message}", Toast.LENGTH_SHORT).show()

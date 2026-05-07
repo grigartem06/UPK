@@ -53,33 +53,7 @@ class ypk_detail_Activity : AppCompatActivity() {
             return
         }
 
-        if(selectedUpkId == "new_ypk") {
-            binding.recyclerViewProductByUpk.visibility = View.GONE
-            binding.textViewName.visibility = View.GONE
-            binding.textViewContent.visibility = View.GONE
-
-            binding.editTextTextName.visibility = View.VISIBLE
-            binding.editTextTextContent.visibility = View.VISIBLE
-
-            binding.buttonSave.visibility = View.VISIBLE
-
-            binding.buttonSave.setOnClickListener { addnewYpk() }
-        }
-        else{
-            binding.recyclerViewProductByUpk.apply {
-                layoutManager = LinearLayoutManager(this@ypk_detail_Activity)
-                setHasFixedSize(true)
-            }
-
-            getInfoAboutUpk(selectedUpkId!!)
-            loadProducts(selectedUpkId.toString())
-
-            binding.buttonEdit.setOnClickListener { edit()}
-            binding.buttonSave.setOnClickListener { save()}
-
-        }
-
-        if (userRole == "Admin") {binding.buttonDelete.visibility = View.VISIBLE}
+        display()
 
 
         //действия кнопок
@@ -146,8 +120,61 @@ class ypk_detail_Activity : AppCompatActivity() {
     }
 
     private fun back(){
-        if(EditMode){EditMode= false; displayUpkInfo(oldUpk)}
+        if(EditMode)
+        {EditMode= false; displayUpkInfo(oldUpk);
+            display()
+        }
         else{finish()}
+    }
+
+    private fun display(){
+        if(selectedUpkId == "new_ypk") {
+            binding.recyclerViewProductByUpk.visibility = View.GONE
+            binding.textViewName.visibility = View.GONE
+            binding.textViewContent.visibility = View.GONE
+
+            binding.buttonEdit.visibility = View.GONE
+            binding.buttonDelete.visibility = View.GONE
+
+            binding.editTextTextName.visibility = View.VISIBLE
+            binding.editTextTextContent.visibility = View.VISIBLE
+
+            binding.buttonSave.visibility = View.VISIBLE
+
+            binding.buttonSave.setOnClickListener { addnewYpk() }
+        }
+        else{
+            binding.recyclerViewProductByUpk.apply {
+                layoutManager = LinearLayoutManager(this@ypk_detail_Activity)
+                setHasFixedSize(true)
+            }
+
+            getInfoAboutUpk(selectedUpkId!!)
+            loadProducts(selectedUpkId.toString())
+
+
+            binding.buttonEdit.visibility = View.GONE
+            binding.buttonSave.visibility = View.GONE
+
+            binding.editTextTextName.visibility = View.GONE
+            binding.editTextTextContent.visibility = View.GONE
+
+            binding.textViewName.visibility = View.VISIBLE
+            binding.textViewContent.visibility = View.VISIBLE
+            binding.textViewContent.visibility = View.VISIBLE
+
+            binding.buttonEdit.setOnClickListener { edit()}
+            binding.buttonSave.setOnClickListener { save()}
+
+        }
+
+        if (userRole == "Admin" && selectedUpkId != "new_ypk") {
+            binding.buttonDelete.visibility = View.VISIBLE
+            binding.buttonEdit.visibility = View.VISIBLE
+        }
+
+        if(EditMode) {binding.buttonBack.text = "отменить"}
+        else {binding.buttonBack.text = "назад"}
     }
 
     private fun edit(){
@@ -165,6 +192,7 @@ class ypk_detail_Activity : AppCompatActivity() {
 
         //скрываем кнопки
         binding.buttonEdit.visibility = View.GONE
+        binding.buttonDelete.visibility = View.GONE
         //раскрываем кнопки
         binding.buttonSave.visibility = View.VISIBLE
 
@@ -189,7 +217,9 @@ class ypk_detail_Activity : AppCompatActivity() {
                 val response = RetrofitClient.apiService.updateYpk(request)
                 if(response.isSuccessful){
                     Toast.makeText(this@ypk_detail_Activity, "✅ Изменения сохранены", Toast.LENGTH_SHORT).show()
-                }else {
+                    finish()
+                }
+                else {
                     var error = response.errorBody()?.string()?:"Неизвестная ошибка"
                     println("❌ ОШИБКА: ${response.code()} - $error")
                     Toast.makeText(this@ypk_detail_Activity, "❌ Ошибка: $error", Toast.LENGTH_LONG).show()
@@ -236,7 +266,7 @@ class ypk_detail_Activity : AppCompatActivity() {
 
         lifecycleScope.launch {
             val result = authRepository.addNewYpk(newYpk)
-            result.onSuccess { Toast.makeText(this@ypk_detail_Activity, "успех", Toast.LENGTH_SHORT).show() }
+            result.onSuccess { Toast.makeText(this@ypk_detail_Activity, "успех", Toast.LENGTH_SHORT).show(); finish() }
             result.onFailure {  }
         }
 

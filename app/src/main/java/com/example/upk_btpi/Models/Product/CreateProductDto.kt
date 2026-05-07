@@ -11,7 +11,7 @@ data class CreateProductDto(
     val ProductCost: Double,
     @SerializedName("IsProduct")
     val IsProduct: Boolean,
-    @SerializedName("Adress")
+    @SerializedName("Address")
     val Adress: String,
     @SerializedName("Photo")
     val Photo: String? = null,

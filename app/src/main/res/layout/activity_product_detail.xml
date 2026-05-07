@@ -24,22 +24,6 @@
             android:padding="16dp">
 
             <!-- YPK Selection -->
-            <TextView
-                android:id="@+id/textViewYpkLabel"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="УПК"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="8dp" />
-
-            <Spinner
-                android:id="@+id/spinnerYpk"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="48dp"
-                android:layout_marginBottom="16dp"
-                android:visibility="gone"/>
 
             <!-- Product Name -->
             <TextView
@@ -143,6 +127,35 @@
 
             <!-- Product Type (IsProduct) -->
             <TextView
+                android:id="@+id/textViewYpkLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="УПК"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textViewProductYpk"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:background="@android:color/darker_gray"
+                android:padding="8dp"
+                android:text="упк"
+                android:textColor="#263238"
+                android:textSize="14sp"
+                android:visibility="visible" />
+
+            <Spinner
+                android:id="@+id/spinnerYpk"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:minHeight="48dp"
+                android:visibility="gone" />
+
+            <TextView
                 android:id="@+id/textViewProductOrServiceLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -213,6 +226,21 @@
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="8dp" />
+
+            <!-- TextView для статуса продукта -->
+            <TextView
+                android:id="@+id/textViewProductStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Статус"
+                android:layout_marginBottom="8dp"
+                android:background="@android:color/darker_gray"
+                android:padding="8dp"
+                android:textColor="#263238"
+                android:textSize="14sp"
+                android:visibility="visible" />
+
+
 
             <Spinner
                 android:id="@+id/spinnerStatus"

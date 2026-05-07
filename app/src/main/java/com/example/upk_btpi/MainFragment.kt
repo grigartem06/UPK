@@ -9,6 +9,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.compose.ui.semantics.Role
+import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -50,11 +52,13 @@ class MainFragment : Fragment() {
 
         loadProducts()
 
+
+
         binding.buttonCheckAll.setOnClickListener {filterProducts(FilterType.ALL) }
         binding.buttonCheckOrders.setOnClickListener {filterProducts(FilterType.PRODUCTS) }
         binding.buttonCheckServices.setOnClickListener {filterProducts(FilterType.SERVICES) }
 
-        binding.buttonSearch.setOnClickListener {
+        binding.editTextText3.doAfterTextChanged {
             val query = binding.editTextText3.text.toString().trim()
 
             if (query.isEmpty()) {
@@ -63,13 +67,14 @@ class MainFragment : Fragment() {
             } else {
                 // Сохраняем запрос и применяем фильтрацию
                 searchQuery = query
-                Toast.makeText(requireContext(), "🔍 Поиск: \"$query\"", Toast.LENGTH_SHORT).show()
             }
             // Перефильтровываем список с учётом нового запроса
             // Определяем текущий тип фильтра (можно сохранить в переменной)
             val currentFilter = getCurrentFilterType() // см. ниже
             filterProducts(currentFilter)
         }
+
+
         binding.checkBox.setOnClickListener {loadProducts()  }
         binding.floatingActionButton.setOnClickListener { addNewProduct() }
 
@@ -89,18 +94,6 @@ class MainFragment : Fragment() {
         binding.swipeRefreshLayout.isRefreshing = false
     }
     private enum class FilterType { ALL, PRODUCTS, SERVICES }
-//    private fun filterProducts(type: FilterType) {
-//        val filteredList = when (type) {
-//            FilterType.ALL -> allProducts
-//            FilterType.PRODUCTS -> allProducts.filter { it.isProduct == true }
-//            FilterType.SERVICES -> allProducts.filter { it.isProduct == false }
-//        }
-//
-//        if (filteredList.isEmpty()) { Toast.makeText(requireContext(), "📭 Список пуст", Toast.LENGTH_SHORT).show() }
-//
-//        productAdapter = ProductAdapter(filteredList) { product -> onProductClick(product) }
-//        binding.recyclerViewProducts.adapter = productAdapter
-//    }
 
     private fun filterProducts(type: FilterType) {
         // 1️⃣ Сначала фильтруем по типу (товар/услуга)
@@ -131,6 +124,12 @@ class MainFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             if(userRole == "DefaultUser") {
+                //скоываем кнопку добавления
+                binding.floatingActionButton.visibility = View.GONE
+                //скрываем мастерскую
+                binding.checkBox.visibility = View.GONE
+
+
                 val result = authRepository.getAllProducts()
                 result.onSuccess { response ->
                     allProducts = response.products

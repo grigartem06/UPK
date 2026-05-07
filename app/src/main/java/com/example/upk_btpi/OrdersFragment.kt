@@ -35,7 +35,7 @@ class OrdersFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val authPrefs = requireContext().getSharedPreferences("auth_prefs", 0)
-        val role = authPrefs.getString("user_role", "null")
+        val role = authPrefs.getString("user_role", null)
 
         binding.ListOfOrders.apply { layoutManager = LinearLayoutManager(requireContext())
         setHasFixedSize(true)}
@@ -55,7 +55,10 @@ class OrdersFragment : Fragment() {
                     response->
                     val orders = response.orders
                     if(orders.isEmpty()) {
-                        Toast.makeText(requireContext(),"Заказов нет", Toast.LENGTH_LONG).show()
+
+                        _binding?.ListOfOrders?.visibility = View.GONE
+                        _binding?.textView10?.visibility = View.VISIBLE
+                        _binding?.textView10?.text = "Заказов нет"
                     }
                     else {
                         if(orderAdapter == null) {

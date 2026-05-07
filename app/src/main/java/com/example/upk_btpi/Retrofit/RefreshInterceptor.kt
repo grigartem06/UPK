@@ -8,7 +8,7 @@ import retrofit2.Retrofit
 
 class RefreshInterceptor(
     private val retrofit: Retrofit,
-    private val authInterceptor: AuthInterceptor  // ← Добавлен параметр
+    private val authInterceptor: AuthInterceptor
 ) : Interceptor {
 
     private var isRefreshing = false
@@ -18,33 +18,30 @@ class RefreshInterceptor(
         val request = chain.request()
         var response = chain.proceed(request)
 
+        println("📡 Response code: ${response.code} for ${request.url.encodedPath}")
+
         if (response.code == 401) {
+            println("⚠️ 401 Unauthorized detected! Trying to refresh token...")
             response.close()
 
             synchronized(this) {
                 if (!isRefreshing) {
                     isRefreshing = true
-
                     val newToken = runBlocking { refreshAccessToken() }
-
                     isRefreshing = false
 
                     if (newToken != null) {
                         pendingRequests.forEach { it() }
                         pendingRequests.clear()
 
-                        val newRequest = request.newBuilder()
-                            .addHeader("Authorization", "Bearer $newToken")
-                            .build()
+                        val newRequest = request.newBuilder().addHeader("Authorization", "Bearer $newToken").build()
                         return chain.proceed(newRequest)
-                    } else {
-                        // Не удалось обновить — разлогиниваем
-                        authInterceptor.clearTokens()
                     }
+                    else { AuthInterceptor.clearTokens() }
                 } else {
                     pendingRequests.add {
                         val newRequest = request.newBuilder()
-                            .addHeader("Authorization", "Bearer ${authInterceptor.getAccessToken()}")
+                            .addHeader("Authorization", "Bearer ${AuthInterceptor.getAccessToken()}")
                             .build()
                         chain.proceed(newRequest)
                     }
@@ -58,7 +55,7 @@ class RefreshInterceptor(
     private suspend fun refreshAccessToken(): String? {
         return try {
             // ✅ Используем authInterceptor вместо TokenManager
-            val refreshToken = authInterceptor.getRefreshToken()
+            val refreshToken = AuthInterceptor.getRefreshToken()
                 ?: return null
 
             val apiService = retrofit.create(ApiService::class.java)
@@ -68,8 +65,8 @@ class RefreshInterceptor(
 
             if (response.isSuccessful && response.body() != null) {
                 val newAuth = response.body()!!
-                authInterceptor.saveTokens(
-                    newAuth.accessToken,
+                AuthInterceptor.saveTokens(
+                    newAuth.accessToken!!,
                     newAuth.refreshToken ?: refreshToken
                 )
                 newAuth.accessToken

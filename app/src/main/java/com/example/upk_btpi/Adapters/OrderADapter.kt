@@ -12,15 +12,12 @@ class OrderADapter(
     ): RecyclerView.Adapter<OrderADapter.OrderViewHolder>() {
     class OrderViewHolder(private val binding: ItemOrderBinding): RecyclerView.ViewHolder(binding.root) {
         fun bind(order: OrderDto, onClick:(OrderDto)-> Unit) {
-            binding.textViewId.text = order.id ?:"нет id"
             binding.textViewDate.text = order.date ?:"нет даты создания"
-            binding.textViewUserComment.text = order.userComment ?:"нет коментария пользователя"
-            binding.textViewCustomersComment.text = order.customersComment ?:"нет коментария исполнителя"
+            binding.textViewPRoductName.text = order.productDto.productName ?:"нет названия"
+            binding.textViewStatus.text = order.statusName
 
             binding.root.setOnClickListener { onClick(order) }
         }
-
-
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): OrderViewHolder {
@@ -28,9 +25,7 @@ class OrderADapter(
         return OrderViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: OrderViewHolder, position: Int) {
-        holder.bind(orders[position], onItemClick)
-    }
+    override fun onBindViewHolder(holder: OrderViewHolder, position: Int) { holder.bind(orders[position], onItemClick) }
 
     fun updateOrders(newOrders: List<OrderDto>) {
         orders = newOrders

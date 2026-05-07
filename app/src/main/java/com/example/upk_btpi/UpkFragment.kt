@@ -1,5 +1,6 @@
 package com.example.upk_btpi
 
+import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -36,12 +37,26 @@ class UpkFragment : Fragment() {
             layoutManager = LinearLayoutManager(requireContext())
             setHasFixedSize(true)
         }
+        val authPrefs =requireContext().getSharedPreferences("auth_prefs", MODE_PRIVATE)
+        var userRole = authPrefs.getString("user_role", null)
+
+        if(userRole != "Admin") {_binding!!.floatingActionButton.visibility = View.GONE}
+
         // ✅ 4️⃣ Загрузка данных
         loadListOfUpk()
 
         binding.floatingActionButton.setOnClickListener { newUpk() }
+        binding.swipeRefreshLayout.setOnRefreshListener { refresh() }
     }
 
+    private fun refresh() {
+        binding.swipeRefreshLayout.isRefreshing = true
+        // Перезагружаем данные
+        loadListOfUpk()
+        // Останавливаем анимацию после загрузки
+        // Важно: делаем это в конце loadProducts() или здесь с задержкой
+        binding.swipeRefreshLayout.isRefreshing = false
+    }
 
     fun loadListOfUpk() {
         lifecycleScope.launch {

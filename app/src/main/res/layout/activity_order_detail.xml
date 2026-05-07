@@ -18,17 +18,17 @@
 
         <TextView
             android:id="@+id/textView9"
+            android:gravity="center"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Информация о заказе" />
 
 
         <TextView
-            android:id="@+id/textViewId"
+            android:id="@+id/textViewProductName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="id" />
-
+            android:text="productName" />
 
         <TextView
             android:id="@+id/textViewExecutorId"
@@ -94,11 +94,7 @@
             android:text="Name"
             android:visibility="gone"/>
 
-        <TextView
-            android:id="@+id/textViewProductName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="productName" />
+
 
         <Button
             android:id="@+id/editButton"

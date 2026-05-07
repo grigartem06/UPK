@@ -42,9 +42,8 @@ class feedback_detail_Activity : AppCompatActivity() {
             return
         }
 
-        if (selectedFeedback == "new_feedback") {
-            newFeedback()
-        } else {
+        if (selectedFeedback == "new_feedback") { newFeedback() }
+        else {
             setupUIByRole()
             loadInfoAboutFeedback(selectedFeedback!!)
 
@@ -60,35 +59,51 @@ class feedback_detail_Activity : AppCompatActivity() {
         if (userRole == "Admin") {
             binding.buttonEdit.visibility = View.VISIBLE
             binding.buttonDelete.visibility = View.VISIBLE
-        } else {
-            binding.buttonDelete.visibility = View.GONE
         }
+        else { binding.buttonDelete.visibility = View.GONE }
     }
 
     private fun loadInfoAboutFeedback(feedbackId: String) {
         lifecycleScope.launch {
             val result = authRepository.getFeedbackById(feedbackId)
             result.onSuccess { feedback -> displayFeedback(feedback) }
-            result.onFailure {
-                Toast.makeText(this@feedback_detail_Activity, "❌ Ошибка получения данных", Toast.LENGTH_SHORT).show()
-            }
+            result.onFailure { Toast.makeText(this@feedback_detail_Activity, "❌ Ошибка получения данных", Toast.LENGTH_SHORT).show() }
         }
     }
 
     private fun displayFeedback(feedback: FeedbackDto) {
         binding.textViewComment.text = feedback.comment ?: "Без комментария"
-        binding.textViewRaitind.text = feedback.raiting.toString()
+
+        // ✅ Устанавливаем рейтинг в TextView И в RatingBar
+        val rating = feedback.raiting?.toInt() ?: 0
+        binding.textViewRaitind.text = "⭐ $rating / 5"
+        binding.ratingBar.rating = rating.toFloat()  // ✅ RatingBar принимает Float
+
         binding.textViewUserName.text = feedback.user?.fullname ?: "Аноним"
     }
 
     private fun enableEditMode() {
         editMode = true
+
+        // Скрываем TextView
         binding.textViewComment.visibility = View.GONE
         binding.textViewRaitind.visibility = View.GONE
+
+        // Показываем поля ввода
         binding.editTextTextComment.visibility = View.VISIBLE
-        binding.editTextTextRaitind.visibility = View.VISIBLE
+        binding.ratingBar.visibility = View.VISIBLE  // ✅ Показываем RatingBar
+
+        // Заполняем данными
         binding.editTextTextComment.setText(binding.textViewComment.text)
-        binding.editTextTextRaitind.setText(binding.textViewRaitind.text)
+
+        // ✅ Получаем рейтинг из TextView и устанавливаем в RatingBar
+        val currentRating = binding.textViewRaitind.text.toString()
+            .replace("⭐ ", "")
+            .replace(" / 5", "")
+            .toIntOrNull() ?: 3
+        binding.ratingBar.rating = currentRating.toFloat()
+
+        // Кнопки
         binding.buttonSave.visibility = View.VISIBLE
         binding.buttonEdit.visibility = View.GONE
     }
@@ -97,7 +112,8 @@ class feedback_detail_Activity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 val commentBody = binding.editTextTextComment.text.toString().trim().toRequestBody("text/plain".toMediaType())
-                val ratingValue = binding.editTextTextRaitind.text.toString().trim().toIntOrNull() ?: 0
+                // ✅ Получаем рейтинг из RatingBar (возвращает Float)
+                val ratingValue = binding.ratingBar.rating.toInt()  // 1, 2, 3, 4 или 5
                 val ratingBody = ratingValue.toString().toRequestBody("text/plain".toMediaType())
                 val idBody = feedbackId.toRequestBody("text/plain".toMediaType())
 
@@ -111,7 +127,8 @@ class feedback_detail_Activity : AppCompatActivity() {
                     Toast.makeText(this@feedback_detail_Activity, "✅ Успешно", Toast.LENGTH_SHORT).show()
                     editMode = false
                     displayFeedback(authRepository.getFeedbackById(feedbackId).getOrNull() ?: return@launch)
-                } else {
+                }
+                else {
                     val error = response.errorBody()?.string() ?: "Неизвестная ошибка"
                     println("❌ ОШИБКА: ${response.code()} - $error")
                     Toast.makeText(this@feedback_detail_Activity, "❌ Ошибка: $error", Toast.LENGTH_LONG).show()
@@ -125,7 +142,7 @@ class feedback_detail_Activity : AppCompatActivity() {
 
     private fun newFeedback() {
         binding.editTextTextComment.visibility = View.VISIBLE
-        binding.editTextTextRaitind.visibility = View.VISIBLE
+        binding.ratingBar.visibility = View.VISIBLE
         binding.textViewComment.visibility = View.GONE
         binding.textViewRaitind.visibility = View.GONE
         binding.buttonSave.visibility = View.VISIBLE
@@ -135,7 +152,7 @@ class feedback_detail_Activity : AppCompatActivity() {
             lifecycleScope.launch {
                 try {
                     val comment = binding.editTextTextComment.text.toString().trim()
-                    val rating = binding.editTextTextRaitind.text.toString().trim().toIntOrNull() ?: 0
+                    val rating = binding.ratingBar.rating.toInt()
 
                     if (comment.isEmpty()) {
                         Toast.makeText(this@feedback_detail_Activity, "⚠️ Введите комментарий", Toast.LENGTH_SHORT).show()

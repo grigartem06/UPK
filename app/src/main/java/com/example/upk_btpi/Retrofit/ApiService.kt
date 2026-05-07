@@ -52,23 +52,17 @@ interface ApiService {
     suspend fun register(@Body request: RegistrationDto): Response<AuthResponse>
     @POST("api/Auth/login")
     suspend fun login(@Body request: LoginDto): Response<AuthResponse>
-
-    // Обновление токена
     @POST("api/Auth/refresh")
     suspend fun refreshAccessToken(@Body request: RefreshTokenRequest): Response<AuthResponse>
-
 
 
     //FeedBack
     @GET("api/Feedback/All")
     suspend fun getAllFeedback() : Response<FeedbackResponse>
-
     @GET("api/Feedback/{id}")
     suspend fun getFeedbackById(@Path("id") feedbackId: String) : Response<FeedbackDto>
-
     @DELETE("api/Feedback/{id}")
     suspend fun deleteFeedbackById(@Path("id") feedbackId: String) : Response<Unit>
-
     @Multipart
     @POST("api/Feedback")
     suspend fun addNewFeedback(
@@ -76,7 +70,6 @@ interface ApiService {
         @Part("Raiting") raiting: RequestBody,
         @Part image: MultipartBody.Part? = null
     ) : Response <String>
-
     @Multipart
     @PUT("api/Feedback")
     suspend fun updateFeedback(
@@ -93,24 +86,19 @@ interface ApiService {
     suspend fun getOrdersForManagerHistory() : Response<OrdersResponse>
     @GET("api/Order/user")
     suspend fun getOrdersForUser() : Response<OrdersResponse>
-
     @GET("api/Order/user/History")
     suspend fun getOrdersForUserHistory() : Response<OrdersResponse>
-
     @GET("api/Order/All")
     suspend fun getAllOrders() : Response<OrdersResponse>
-
     @GET("api/Order/{id}")
     suspend fun getOrderById(@Path ("id") orderId: String ) : Response<OrderDto>
-
     @DELETE("api/Order/{id}")
     suspend fun deleteOrderById(@Path("id") orderId: String): Response<Unit>
-
     @POST("api/Order")
     suspend fun addNewOrder(@Body request: CreateOrderDto) : Response<Unit>
-
     @PUT("api/Order")
     suspend fun updateOrder(@Body request: UpdateOrderDto) : Response<Unit>
+
 
     //Product
     @GET("api/Product/All")
@@ -123,10 +111,6 @@ interface ApiService {
     suspend fun getProductsByYpk(@Path("id")ypkId: String) : Response<ProductsResponse>
     @DELETE("api/Product/{id}")
     suspend fun deleteProductById(@Path("id") productId: String): Response<Unit>
-    @POST("api/Product/{id}")
-    suspend fun addNewProduct(@Body request: CreateProductDto) : Response<Unit>
-
-    // Добавление нового продукта
     @Multipart
     @POST("api/Product")
     suspend fun createProduct(
@@ -134,14 +118,11 @@ interface ApiService {
         @Part("ProductInfo") productInfo: RequestBody?,
         @Part("ProductCost") productCost: RequestBody,
         @Part("IsProduct") isProduct: RequestBody,
-        @Part("Adres") adres: RequestBody?,
+        @Part("Address") address: RequestBody?,
         @Part("YpkId") ypkId: RequestBody,
         @Part("StatusProductId") statusProductId: RequestBody?,
         @Part photo: MultipartBody.Part? = null
     ): Response<String>  // Возвращает ID созданного продукта
-
-
-
     @Multipart
     @PUT("api/Product")
     suspend fun updateProduct(
@@ -160,17 +141,19 @@ interface ApiService {
     //Role
     @GET("api/Role/All")
     suspend fun getAllRoles() : Response<RolesResponse>
-
     @GET("api/Role/{id}")
     suspend fun getRoleById(@Path("id") roleId: String) : Response<RoleDto>
+
 
     // StatusProduct
     @GET("api/StatusProduct/All")
     suspend fun getAllStatusProduct(): Response<StatusProductResponse>
 
+
     //StatusOrder
     @GET("api/StatusOrder/All")
     suspend fun getAllStatusOrder(): Response<StatusOrderResponse>
+
 
     //User
     @GET("api/User/All")
@@ -183,9 +166,9 @@ interface ApiService {
     suspend fun createUser(@Body request: CreateUserDto) : Response<Unit>
     @PUT("api/User")
     suspend fun  updateUser(@Body request: UpdateUserDto) : Response<Unit>
-
     @PUT("/api/user/admin")
     suspend fun updateUserForAdmin(@Body request: UpdateUserForAdminDto): Response<Unit>
+
 
     //Ypk
     @GET("api/Ypk/All")
@@ -198,6 +181,4 @@ interface ApiService {
     suspend fun addNewYpk(@Body request: CreateYpkDto) : Response<String>
     @PUT("api/Ypk")
     suspend fun updateYpk(@Body request: UpdateYpkDto) : Response<Unit>
-
-
 }

@@ -41,20 +41,13 @@ class AuthRepository {
 
             if (response.isSuccessful) {
                 val body = response.body()
-
-                if (body != null) {
-                    Result.success(body)
-                } else {
-                    Result.success(AuthResponse(null, "Регистрация успешна",
-                        null))
+                if (body != null) { Result.success(body) }
+                else { Result.success(AuthResponse(null, null))
                 }
             } else {
                 // Сервер вернул ошибку
-                val errorBody = try {
-                    response.errorBody()?.string()
-                } catch (e: Exception) {
-                    "Не удалось прочитать ошибку"
-                }
+                val errorBody = try { response.errorBody()?.string() }
+                catch (e: Exception) { "Не удалось прочитать ошибку" }
                 println("❌ ОШИБКА СЕРВЕРА:")
                 println("   Код: ${response.code()}")
                 println("   Тело ошибки: $errorBody")
@@ -80,30 +73,23 @@ class AuthRepository {
             val response = RetrofitClient.apiService.login(request)
 
             println("📤 ВХОД: phoneNumber=$phoneNumber")
-            println("📥 ОТВЕТ: код=${response.code()}, токен=${response.body()?.token?.take(20)}...")
+            println("📥 ОТВЕТ: код=${response.code()}, токен=${response.body()?.accessToken?.take(20)}...")
 
-            if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!)
-            } else {
+            if (response.isSuccessful && response.body() != null) { Result.success(response.body()!!) }
+            else {
                 val error = response.errorBody()?.string() ?: "Неизвестная ошибка"
                 Result.failure(Exception("Ошибка ${response.code()}: $error"))
             }
-        } catch (e: IOException) {
-            Result.failure(Exception("Нет соединения с сервером"))
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+        } catch (e: IOException) { Result.failure(Exception("Нет соединения с сервером")) }
+        catch (e: Exception) { Result.failure(e) }
     }
     private  fun  handleResponse(response: Response<AuthResponse>): Result<AuthResponse> {
         return if (response.isSuccessful && response.body() != null) {
             val body = response.body()!!
             Result.success(body)
         } else {
-            val errorBody = try {
-                response.errorBody()?.string()
-            }catch (e: Exception) {
-                "Не удалось прочитать ошибку"
-            }
+            val errorBody = try { response.errorBody()?.string() }
+            catch (e: Exception) { "Не удалось прочитать ошибку" }
             Result.failure(Exception("Ошибка ${response.code()}: $errorBody"))
         }
     }
@@ -111,15 +97,13 @@ class AuthRepository {
     suspend fun getUserByID(userId: String): Result<UserDto> {
         return try {
             val response = RetrofitClient.apiService.getUserByID(userId)
-            if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!)
-            } else {
+            if (response.isSuccessful && response.body() != null) { Result.success(response.body()!!) }
+            else {
                 val error = response.errorBody()?.string() ?: "Неизвестная ошибка"
                 Result.failure(Exception("Ошибка ${response.code()}: $error"))
             }
-        } catch (e: Exception) {
-            Result.failure(e)
         }
+        catch (e: Exception) { Result.failure(e) }
     }
 
 
@@ -136,9 +120,7 @@ class AuthRepository {
                 Result.failure(Exception("Ошибка ${response.code()}: $error"))
             }
         }
-        catch (e: Exception) {
-            Result.failure(e)
-        }
+        catch (e: Exception) { Result.failure(e) }
     }
 
 
@@ -155,9 +137,7 @@ class AuthRepository {
                 Result.failure(Exception("Ошибка ${response.code()}: $error"))
             }
         }
-        catch (e: Exception) {
-            Result.failure(e)
-        }
+        catch (e: Exception) { Result.failure(e) }
     }
 
 
@@ -189,9 +169,8 @@ class AuthRepository {
                 val error = response.errorBody()?.toString() ?: "неизвестная ошибка"
                 Result.failure(Exception(error))
             }
-        } catch (e: Exception) {
-            Result.failure(e)
         }
+        catch (e: Exception) { Result.failure(e) }
     }
 
 
@@ -207,9 +186,7 @@ class AuthRepository {
                 Result.failure(Exception("Ошибка ${response.code()}: $error"))
             }
         }
-        catch (e: Exception) {
-            Result.failure(e)
-        }
+        catch (e: Exception) { Result.failure(e) }
     }
 
 
@@ -228,9 +205,8 @@ class AuthRepository {
                 val error = response.errorBody()?.string() ?: "Неизвестная ошибка"
                 Result.failure(Exception("Ошибка ${response.code()}: $error"))
             }
-        } catch (e: Exception) {
-            Result.failure(e)
         }
+        catch (e: Exception) { Result.failure(e) }
     }
 
     suspend fun getALLUsers(): Result<UserResponse> {
@@ -292,9 +268,8 @@ class AuthRepository {
                 val error = response.errorBody()?.string() ?: "Неизвестная ошибка"
                 Result.failure(Exception("Ошибка ${response.code()}: $error"))
             }
-        } catch (e: Exception) {
-            Result.failure(e)
         }
+        catch (e: Exception) { Result.failure(e) }
     }
 
 
@@ -327,9 +302,8 @@ class AuthRepository {
             else{
                 val error = response.errorBody()?.string()?:"неизвестная ошибка"
                 Result.failure(Exception("Ошибка ${response.code()}: $error"))}
-        }catch (e: Exception) {
-            Result.failure(e)
         }
+        catch (e: Exception) { Result.failure(e) }
     }
 
     suspend fun getUpkById(upkId: String): Result<YpksDto> {
@@ -342,9 +316,8 @@ class AuthRepository {
                 val error = response.errorBody()?.string() ?: "Неизвестная ошибка"
                 Result.failure(Exception("Ошибка ${response.code()}: $error"))
             }
-        } catch (e: Exception) {
-            Result.failure(e)
         }
+        catch (e: Exception) { Result.failure(e) }
     }
 
     suspend fun getProductsByYpk(ypkId: String): Result<ProductsResponse> {
@@ -367,21 +340,14 @@ class AuthRepository {
 
 
 
-        suspend fun addNewFeedback(
-            comment: String,
-            raiting: Int,
-            imageUri: Uri? = null,
-            context: Context
-        ): Result<String> {
+        suspend fun addNewFeedback(comment: String, raiting: Int, imageUri: Uri? = null, context: Context): Result<String> {
             return try {
                 // Создаем RequestBody для текстовых полей
                 val commentBody = comment.toRequestBody("text/plain".toMediaType())
                 val raitingBody = raiting.toString().toRequestBody("text/plain".toMediaType())
 
                 // Создаем Part для изображения (если есть)
-                val imagePart = imageUri?.let { uri ->
-                    createImagePart(uri, context)
-                }
+                val imagePart = imageUri?.let { uri -> createImagePart(uri, context) }
 
                 val response = RetrofitClient.apiService.addNewFeedback(
                     comment = commentBody,
@@ -411,11 +377,7 @@ class AuthRepository {
             val inputStream = context.contentResolver.openInputStream(uri)
             val tempFile = File.createTempFile("feedback_image", ".jpg", context.cacheDir)
 
-            inputStream?.use { input ->
-                tempFile.outputStream().use { output ->
-                    input.copyTo(output)
-                }
-            }
+            inputStream?.use { input -> tempFile.outputStream().use { output -> input.copyTo(output) } }
 
             val requestBody = tempFile.asRequestBody("image/jpeg".toMediaType())
             return MultipartBody.Part.createFormData("Image", tempFile.name, requestBody)
@@ -427,20 +389,14 @@ class AuthRepository {
             val response = RetrofitClient.apiService.addNewYpk(newYpk)
             if(response.isSuccessful&& response.body()!=null){
                 val newYpkId  = response.body()!!
-                Result.success(newYpkId)
-            }else{
+                Result.success(newYpkId) }
+            else{
                 val error = response.errorBody()?.string() ?: "Неизвестная ошибка"
                 println("❌ ОШИБКА: ${response.code()} - $error")
-                Result.failure(Exception("Ошибка ${response.code()}: $error"))
-            }
+                Result.failure(Exception("Ошибка ${response.code()}: $error")) }
         }catch (e: Exception) {
             println("❌ ИСКЛЮЧЕНИЕ: ${e.message}")
             Result.failure(e) }
     }
-
-
-
-
-
 
 }

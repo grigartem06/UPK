@@ -15,6 +15,8 @@ object RetrofitClient {
 
     private lateinit var authInterceptor: AuthInterceptor
     private lateinit var refreshInterceptor: RefreshInterceptor
+    private lateinit var retrofitClient: RetrofitClient
+
 
     lateinit var apiService: ApiService
         private set
@@ -26,6 +28,7 @@ object RetrofitClient {
 
         // 1️⃣ Инициализируем AuthInterceptor с контекстом
         authInterceptor = AuthInterceptor(context)
+        retrofitClient = RetrofitClient
 
         // 2️⃣ Создаём отдельный Retrofit для внутренних запросов
         val internalRetrofit = Retrofit.Builder()
@@ -75,7 +78,7 @@ object RetrofitClient {
 
     fun logout() {
         if (::authInterceptor.isInitialized) {
-            authInterceptor.clearTokens()
+            AuthInterceptor.clearTokens()
         }
     }
 }

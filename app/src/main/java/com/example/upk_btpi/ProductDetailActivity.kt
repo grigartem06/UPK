@@ -78,7 +78,7 @@
             else { loadProductInfo(currentProductId!!) }
 
             val authPrefs =getSharedPreferences("auth_prefs", MODE_PRIVATE)
-            var userRole = authPrefs.getString("user_role", null)
+            var userRole = authPrefs.getString("user_role", "DefaultUser")
 
             setupVisibility(userRole!!)
 
@@ -133,26 +133,60 @@
 
         private fun loadYpks() {
             lifecycleScope.launch {
-                val result = authRepository.getAllUpks()
-                result.onSuccess { response ->
-                    ypksList = response.ypks
-                    setupYpkSpinner()
-                }
-                result.onFailure {
-                    Toast.makeText(this@ProductDetailActivity, "❌ Ошибка загрузки УПК", Toast.LENGTH_SHORT).show()
+                try {
+                    val result = authRepository.getAllUpks()
+
+                    result.onSuccess { response ->
+                        ypksList = response.ypks
+
+                        if (ypksList.isNotEmpty() && !isFinishing && !isDestroyed && binding != null) {
+                            setupYpkSpinner()
+                        } else if (ypksList.isEmpty()) {
+                            Toast.makeText(this@ProductDetailActivity, "⚠️ Список УПК пуст", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+
+                    result.onFailure { error ->
+                        println("❌ Ошибка загрузки УПК: ${error.message}")
+                        // ✅ Дефолтные значения при ошибке
+                        ypksList = listOf(
+                            YpksDto(id = "default-ypk", ypkName = "УПК по умолчанию", description = "", isActive = true)
+                        )
+                        setupYpkSpinner()
+                    }
+                } catch (e: Exception) {
+                    println("❌ Исключение: ${e.message}")
                 }
             }
         }
 
-        private fun loadStatusProducts() {
+        private fun loadStatusProducts(retryCount: Int = 0) {
             lifecycleScope.launch {
-                val result = authRepository.getAllStatusProducts()
-                result.onSuccess { response ->
-                    statusProductsList = response.statusProducts
-                    setupStatusProductSpinner()
-                }
-                result.onFailure {
-                    Toast.makeText(this@ProductDetailActivity, "❌ Ошибка загрузки статусов", Toast.LENGTH_SHORT).show()
+                try {
+                    val result = authRepository.getAllStatusProducts()
+
+                    result.onSuccess { response ->
+                        statusProductsList = response.statusProducts
+                        if (statusProductsList.isNotEmpty() && !isFinishing && !isDestroyed) { setupStatusProductSpinner() }
+                    }
+
+                    result.onFailure { error ->
+                        if (retryCount < 2) {  // ✅ Повторить максимум 2 раза
+                            println("🔄 Повторная попытка загрузки статусов (${retryCount + 1}/2)...")
+                            kotlinx.coroutines.delay(1000)  // Ждём 1 секунду
+                            loadStatusProducts(retryCount + 1)
+                        } else {
+                            println("❌ Не удалось загрузить статусы после ${retryCount + 1} попыток")
+                            // Используем дефолтные значения
+                            statusProductsList = listOf(
+                                StatusProductDto(id = "default-editing", statusName = "Черновик"),
+                                StatusProductDto(id = "default-publish", statusName = "Опубликовано")
+                            )
+                            setupStatusProductSpinner()
+                        }
+                    }
+                } catch (e: Exception) {
+                    println("❌ Исключение: ${e.message}")
                 }
             }
         }
@@ -167,15 +201,19 @@
 
             binding.spinnerYpk.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                    if (position > 0) {
-                        selectedYpkId = ypksList[position - 1].id
-                    }
+                    if (position > 0) { selectedYpkId = ypksList[position - 1].id }
                 }
                 override fun onNothingSelected(parent: AdapterView<*>?) {}
             }
         }
 
         private fun setupStatusProductSpinner() {
+            // ✅ ПРАВИЛЬНО: возвращаемся, если список пуст ИЛИ binding не инициализирован ИЛИ активность завершается
+            if (statusProductsList.isEmpty() || !::binding.isInitialized || isFinishing || isDestroyed) {
+                println("⚠️ setupStatusProductSpinner() пропущен: empty=${statusProductsList.isEmpty()}, binding=${::binding.isInitialized}, finishing=$isFinishing, destroyed=$isDestroyed")
+                return
+            }
+
             val statusNames = statusProductsList.map { it.statusName }.toMutableList()
             statusNames.add(0, "Выберите статус")
 
@@ -183,13 +221,26 @@
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             binding.spinnerStatus.adapter = adapter
 
+            // ✅ Устанавливаем выбор для существующего продукта
+            if (oldProduct?.statusProductId != null && currentProductId != "add_new_product") {
+                val statusPosition = statusProductsList.indexOfFirst { it.id == oldProduct!!.statusProductId }
+                if (statusPosition >= 0) {
+                    binding.spinnerStatus.setSelection(statusPosition + 1)
+                    selectedStatusProductId = oldProduct!!.statusProductId
+                }
+            }
+
+            // ✅ Обработчик выбора
             binding.spinnerStatus.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                    if (position > 0) {
+                    if (position > 0 && position - 1 < statusProductsList.size) {
                         selectedStatusProductId = statusProductsList[position - 1].id
+                        println("✅ Выбран статус: ${statusProductsList[position - 1].statusName}")
                     }
                 }
-                override fun onNothingSelected(parent: AdapterView<*>?) {}
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                    selectedStatusProductId = null
+                }
             }
         }
 
@@ -207,19 +258,30 @@
         }
 
         private fun displayProductInfo(product: ProductDto) {
-            // Показываем TextView, скрываем EditText
+            // 🔹 РЕЖИМ ПРОСМОТРА: показываем TextView, скрываем EditText и спиннеры
             binding.textViewProductName.visibility = View.VISIBLE
             binding.editTextProductName.visibility = View.GONE
+
             binding.textViewCost.visibility = View.VISIBLE
             binding.editTextCost.visibility = View.GONE
+
             binding.textViewProductInfo.visibility = View.VISIBLE
             binding.editTextInfo.visibility = View.GONE
+
             binding.textViewProductOrService.visibility = View.VISIBLE
             binding.checkBoxIsProduct.visibility = View.GONE
+
             binding.textViewAdress.visibility = View.VISIBLE
             binding.editTextAdress.visibility = View.GONE
-            binding.spinnerYpk.visibility = View.VISIBLE
-            binding.spinnerStatus.visibility = View.VISIBLE
+
+            // ✅ СПИННЕРЫ СКРЫТЫ В РЕЖИМЕ ПРОСМОТРА:
+            binding.spinnerYpk.visibility = View.GONE
+            binding.spinnerStatus.visibility = View.GONE
+
+            // ✅ ПОКАЗЫВАЕМ TextView ДЛЯ УПК И СТАТУСА:
+            binding.textViewProductYpk.visibility = View.VISIBLE
+            binding.textViewProductStatus.visibility = View.VISIBLE  // добавьте этот TextView в XML
+
             binding.buttonEdit.visibility = View.VISIBLE
             binding.buttonSave.visibility = View.GONE
 
@@ -230,54 +292,45 @@
             binding.textViewProductOrService.text = if (product.isProduct) "Товар" else "Услуга"
             binding.textViewAdress.text = product.adress ?: "Нет адреса"
 
-            // Загружаем фото продукта с сервера через Glide
+            // ✅ Отображаем название УПК и статуса
+            val ypkName = ypksList.find { it.id == product.ypkId }?.ypkName
+            binding.textViewProductYpk.text = ypkName ?: (product.ypkId?.substring(0, 8) + "..." ?: "УПК не найден")
+
+            val statusName = statusProductsList.find { it.id == product.statusProductId }?.statusName
+            binding.textViewProductStatus.text = statusName ?: (product.statusProductId?.substring(0, 8) + "..." ?: "Статус не найден")
+
+            // Загружаем фото
             val photoUrl = product.photoUrl
             if (!photoUrl.isNullOrEmpty()) {
-                Glide.with(this)
-                    .load(photoUrl)
+                Glide.with(this).load(photoUrl)
                     .placeholder(android.R.drawable.ic_menu_gallery)
                     .error(android.R.drawable.ic_menu_report_image)
                     .into(binding.imageViewPhoto)
             } else {
                 binding.imageViewPhoto.setImageResource(android.R.drawable.ic_menu_gallery)
             }
-
-            // Выбираем УПК в spinner
-            val ypkPosition = ypksList.indexOfFirst { it.id == product.ypkId }
-            if (ypkPosition >= 0) {
-                binding.spinnerYpk.setSelection(ypkPosition + 1)
-                selectedYpkId = product.ypkId
-            }
-
-            // Выбираем статус в spinner
-            if (!product.statusProductId.isNullOrEmpty()) {
-                val statusPosition = statusProductsList.indexOfFirst { it.id == product.statusProductId }
-                if (statusPosition >= 0) {
-                    binding.spinnerStatus.setSelection(statusPosition + 1)
-                    selectedStatusProductId = product.statusProductId
-                }
-            }
         }
 
         private fun setupUIForNewProduct() {
+            // 🔹 Для нового продукта сразу режим редактирования
+
+            // Скрываем TextView
             binding.textViewProductName.visibility = View.GONE
-            binding.editTextProductName.visibility = View.VISIBLE
-
             binding.textViewCost.visibility = View.GONE
-            binding.editTextCost.visibility = View.VISIBLE
-
             binding.textViewProductInfo.visibility = View.GONE
-            binding.editTextInfo.visibility = View.VISIBLE
-
             binding.textViewProductOrService.visibility = View.GONE
-            binding.checkBoxIsProduct.visibility = View.VISIBLE
-
             binding.textViewAdress.visibility = View.GONE
+            binding.textViewProductYpk.visibility = View.GONE
+            binding.textViewProductStatus.visibility = View.GONE
+
+            // Показываем EditText и спиннеры
+            binding.editTextProductName.visibility = View.VISIBLE
+            binding.editTextCost.visibility = View.VISIBLE
+            binding.editTextInfo.visibility = View.VISIBLE
+            binding.checkBoxIsProduct.visibility = View.VISIBLE
             binding.editTextAdress.visibility = View.VISIBLE
-
-            binding.spinnerYpk.visibility = View.VISIBLE
-
-            binding.spinnerStatus.visibility = View.VISIBLE
+            binding.spinnerYpk.visibility = View.VISIBLE      // ✅ Спиннеры видимы
+            binding.spinnerStatus.visibility = View.VISIBLE   // ✅ Спиннеры видимы
 
             binding.buttonEdit.visibility = View.GONE
             binding.buttonSave.visibility = View.VISIBLE
@@ -289,32 +342,49 @@
         private fun enableEditMode() {
             if (oldProduct == null) return
 
-            // Скрываем TextView
+            // 🔹 СКРЫВАЕМ TextView
             binding.textViewProductName.visibility = View.GONE
             binding.textViewCost.visibility = View.GONE
             binding.textViewProductInfo.visibility = View.GONE
             binding.textViewProductOrService.visibility = View.GONE
             binding.textViewAdress.visibility = View.GONE
+            binding.textViewProductYpk.visibility = View.GONE      // ✅ Скрываем
+            binding.textViewProductStatus.visibility = View.GONE   // ✅ Скрываем
 
-            // Показываем EditText
+            // 🔹 ПОКАЗЫВАЕМ EditText и спиннеры
             binding.editTextProductName.visibility = View.VISIBLE
             binding.editTextCost.visibility = View.VISIBLE
             binding.editTextInfo.visibility = View.VISIBLE
             binding.checkBoxIsProduct.visibility = View.VISIBLE
             binding.editTextAdress.visibility = View.VISIBLE
 
-            // Заполняем EditText данными
+            // ✅ ПОКАЗЫВАЕМ СПИННЕРЫ:
+            binding.spinnerYpk.visibility = View.VISIBLE
+            binding.spinnerStatus.visibility = View.VISIBLE
+
+            // Заполняем поля данными
             binding.editTextProductName.setText(oldProduct!!.productName)
             binding.editTextCost.setText(oldProduct!!.productCost.toString())
             binding.editTextInfo.setText(oldProduct!!.productInfo ?: "")
             binding.checkBoxIsProduct.isChecked = oldProduct!!.isProduct
             binding.editTextAdress.setText(oldProduct!!.adress ?: "")
 
-            // Сбрасываем выбранное фото при входе в режим редактирования
-            // (пользователь может выбрать новое фото или оставить старое)
-            selectedImageUri = null
+            // ✅ Устанавливаем значения в спиннеры
+            val ypkPosition = ypksList.indexOfFirst { it.id == oldProduct!!.ypkId }
+            if (ypkPosition >= 0) {
+                binding.spinnerYpk.setSelection(ypkPosition + 1)
+                selectedYpkId = oldProduct!!.ypkId
+            }
 
-            // Показываем/скрываем кнопки
+            if (!oldProduct!!.statusProductId.isNullOrEmpty()) {
+                val statusPosition = statusProductsList.indexOfFirst { it.id == oldProduct!!.statusProductId }
+                if (statusPosition >= 0) {
+                    binding.spinnerStatus.setSelection(statusPosition + 1)
+                    selectedStatusProductId = oldProduct!!.statusProductId
+                }
+            }
+
+            // Кнопки
             binding.buttonEdit.visibility = View.GONE
             binding.buttonOrder.visibility = View.GONE
             binding.buttonSave.visibility = View.VISIBLE
@@ -332,11 +402,7 @@
 
         private fun addNewProduct() {
             val productName = binding.editTextProductName.text.toString().trim()
-            val productCost = binding.editTextCost.text.toString()
-                .replace(" ₽", "")
-                .replace(",", ".")
-                .trim()
-                .toDoubleOrNull()
+            val productCost = binding.editTextCost.text.toString().replace(" ₽", "").replace(",", ".").trim().toDoubleOrNull()
             val productInfo = binding.editTextInfo.text.toString().trim()
             val isProduct = binding.checkBoxIsProduct.isChecked
             val address = binding.editTextAdress.text.toString().trim()
@@ -390,6 +456,7 @@
                     println("   ProductName: $productName")
                     println("   ProductCost: $productCost")
                     println("   YpkId: $selectedYpkId")
+                    println("   YpkId: $address")
                     println("   StatusProductId: $selectedStatusProductId")
                     println("   Photo: ${if (photoPart != null) "Есть" else "Нет"}\n")
 
@@ -398,7 +465,7 @@
                         productInfo = infoBody,
                         productCost = costBody,
                         isProduct = isProductBody,
-                        adres = adressBody,
+                        address = adressBody,
                         ypkId = ypkIdBody,
                         statusProductId = statusProductIdBody,
                         photo = photoPart
@@ -512,10 +579,35 @@
                     println("   Message: ${response.message()}")
                     println("   Successful: ${response.isSuccessful}\n")
 
+                    // В конце save() / updateProduct(), после успешного ответа:
                     if (response.isSuccessful) {
                         Toast.makeText(this@ProductDetailActivity, "✅ Изменения сохранены", Toast.LENGTH_SHORT).show()
-                        finish()
-                    } else {
+
+                        // ✅ ВОЗВРАЩАЕМ РЕЖИМ ПРОСМОТРА:
+                        binding.textViewProductName.visibility = View.VISIBLE
+                        binding.editTextProductName.visibility = View.GONE
+                        binding.textViewCost.visibility = View.VISIBLE
+                        binding.editTextCost.visibility = View.GONE
+                        binding.textViewProductInfo.visibility = View.VISIBLE
+                        binding.editTextInfo.visibility = View.GONE
+                        binding.textViewProductOrService.visibility = View.VISIBLE
+                        binding.checkBoxIsProduct.visibility = View.GONE
+                        binding.textViewAdress.visibility = View.VISIBLE
+                        binding.editTextAdress.visibility = View.GONE
+
+                        // ✅ СКРЫВАЕМ СПИННЕРЫ, ПОКАЗЫВАЕМ TextView:
+                        binding.spinnerYpk.visibility = View.GONE
+                        binding.spinnerStatus.visibility = View.GONE
+                        binding.textViewProductYpk.visibility = View.VISIBLE
+                        binding.textViewProductStatus.visibility = View.VISIBLE
+
+                        binding.buttonEdit.visibility = View.VISIBLE
+                        binding.buttonSave.visibility = View.GONE
+                        binding.buttonOrder.visibility = View.VISIBLE
+
+                        finish() // или обновите данные и вызовите displayProductInfo()
+                    }
+                    else {
                         val error = response.errorBody()?.string() ?: "Неизвестная ошибка"
                         println("❌ ОШИБКА: $error")
                         Toast.makeText(this@ProductDetailActivity, "❌ Ошибка: $error", Toast.LENGTH_LONG).show()

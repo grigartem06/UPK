@@ -17,6 +17,7 @@ class FeedbackAdapter(
     class FeedbackViewHolder(private val binding: ItemFeedbackBinding): RecyclerView.ViewHolder(binding.root) {
         fun bind(feedback: FeedbackDto, onItemClick: (FeedbackDto) -> Unit) {
         binding.textViewComment.text = feedback.comment
+            binding.textViewRaitind.text = feedback.raiting.toString()
             binding.root.setOnClickListener { onItemClick(feedback) }
         }
     }
