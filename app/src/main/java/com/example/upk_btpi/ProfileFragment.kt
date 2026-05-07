@@ -270,9 +270,7 @@ class ProfileFragment : Fragment() {
                  Toast.makeText(requireContext(), "Ошибка: ${e.message}", Toast.LENGTH_SHORT).show()
              }
 
-             if(role == "Admin") {
-                loadAllUser()
-             }
+             if(role == "Admin") { loadAllUser() }
              else { binding.recyclerViewUsers.visibility = View.GONE}
          }
     }

@@ -55,13 +55,7 @@
             android:textColor="#546E7A"
             android:layout_marginBottom="6dp" />
 
-        <TextView
-            android:id="@+id/textViewRaitind"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="TextView"
-            android:textSize="13sp"
-            android:textColor="#FF9800" />
+
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>
