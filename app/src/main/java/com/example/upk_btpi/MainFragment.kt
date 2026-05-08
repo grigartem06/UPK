@@ -44,6 +44,7 @@ class MainFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         binding.recyclerViewProducts.apply {
             layoutManager = LinearLayoutManager(requireContext())
             setHasFixedSize(true)
@@ -78,6 +79,8 @@ class MainFragment : Fragment() {
         binding.floatingActionButton.setOnClickListener { addNewProduct() }
 
         binding.swipeRefreshLayout.setOnRefreshListener { refresh() }
+
+
     }
 
     private var currentFilterType: FilterType = FilterType.ALL
@@ -153,6 +156,7 @@ class MainFragment : Fragment() {
                 result.onFailure { error-> Toast.makeText(requireContext(), error.message, Toast.LENGTH_LONG).show() }
             }
             else {
+                binding.checkBox.visibility = View.VISIBLE
                 if (binding.checkBox.isChecked) {
                     val result = authRepository.getAllEdetingProducts()
                     result.onSuccess { response -> allProducts = response.products

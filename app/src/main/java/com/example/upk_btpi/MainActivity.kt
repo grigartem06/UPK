@@ -92,21 +92,21 @@ class MainActivity : AppCompatActivity() {
                 ).show()
 
                 // Переход на экран SMS с данными пользователя
-//                val intent = Intent(this@MainActivity, SMS::class.java)
+                val intent = Intent(this@MainActivity, Entry::class.java)
 //                intent.putExtra("user_phone", phone)
 //                intent.putExtra("user_fio", fio)
                 // Можно добавить токен, если он есть: intent.putExtra("token", response.token)
 
-//                startActivity(intent)
-//                finish()
+                startActivity(intent)
+                finish()
             }
 
             result.onFailure { error ->
                 val errorMessage = error.message ?: "Неизвестная ошибка"
 
                 // Показываем ошибку в поле ФИО
-                binding.editTextText.error = errorMessage
-                binding.editTextText.requestFocus()
+//                binding.editTextText.error = errorMessage
+//                binding.editTextText.requestFocus()
 
                 // Дополнительно можно показать Toast (по желанию)
                 Toast.makeText(
